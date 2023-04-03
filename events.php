@@ -1,3 +1,10 @@
+<?php
+session_start();
+
+if(!isset($_SESSION['user'])){
+    header("location:login.php");
+}?>
+
 <!doctype html>
 <html lang="en">
 
@@ -7,14 +14,12 @@
 
     <title>Events</title>
 
-    <meta name="description"
-        content="Dashmix - Bootstrap 5 Admin Template &amp; UI Framework created by pixelcave and published on Themeforest">
+    <meta name="description" content="Dashmix - Bootstrap 5 Admin Template &amp; UI Framework created by pixelcave and published on Themeforest">
     <meta name="author" content="pixelcave">
     <meta name="robots" content="noindex, nofollow">
     <meta property="og:title" content="Dashmix - Bootstrap 5 Admin Template &amp; UI Framework">
     <meta property="og:site_name" content="Dashmix">
-    <meta property="og:description"
-        content="Dashmix - Bootstrap 5 Admin Template &amp; UI Framework created by pixelcave and published on Themeforest">
+    <meta property="og:description" content="Dashmix - Bootstrap 5 Admin Template &amp; UI Framework created by pixelcave and published on Themeforest">
     <meta property="og:type" content="website">
     <meta property="og:url" content="">
     <meta property="og:image" content="">
@@ -27,67 +32,69 @@
     <link rel="stylesheet" id="css-main" href="assets/css/dashmix.min.css">
     <script src="https://cdn.ckeditor.com/ckeditor5/36.0.1/classic/ckeditor.js"></script>
     <style>
-    table,
-    th,
-    td {
-        border: 1px solid #D3D3D3;
-        border-collapse: collapse;
-    }
+        table,
+        th,
+        td {
+            border: 1px solid #D3D3D3;
+            border-collapse: collapse;
+        }
     </style>
 </head>
 
 <body>
+    
     <?php
-  include "dbconnect.php";
-  if (isset($_POST['edit_event'])) {
-    $id = $_POST['id'];
-    $name = $_POST['name'];
-    $time = $_POST['time'];
-    $date = $_POST['date'];
-    $venue = $_POST['venue'];
-    $description = $_POST['description'];
-    $sql = "UPDATE `events` SET`event_name`='$name',`event_date`='$date',`event_time`='$time', `venue`='$venue',`description`='$description' WHERE events.event_id = '$id'";
-    $results = $conn->query($sql);
-    if ($results) {
+    include "dbconnect.php";
+    if (isset($_POST['edit_event'])) {
+        $id = $_POST['id'];
+        $name = $_POST['name'];
+        $time = $_POST['time'];
+        $date = $_POST['date'];
+        $venue = $_POST['venue'];
+        $description = $_POST['description'];
+        $sql = "UPDATE `events` SET`event_name`='$name',`event_date`='$date',`event_time`='$time', `venue`='$venue',`description`='$description' WHERE events.event_id = '$id'";
+        $results = $conn->query($sql);
+        if ($results) {
+            $user =  $_SESSION['user']['id'];
+            $transaction_id = "#" . date('Ym') . time();
+            $sql = "INSERT INTO `log`(`transaction_id`, `transaction`, `user`) VALUES ('$transaction_id', 'Edited an  Event($name)',  '$user')";
+            $conn->query($sql);
+        }
     }
-  }
 
-  if (isset($_POST['add_event'])) {
-    $name = $_POST['name'];
-    $time = $_POST['time'];
-    $date = $_POST['date'];
-    $organiser = $_POST['organiser'];
-    $venue = $_POST['venue'];
-    $description = $_POST['description'];
+    if (isset($_POST['add_event'])) {
+        $name = $_POST['name'];
+        $time = $_POST['time'];
+        $date = $_POST['date'];
+        $organiser = $_POST['organiser'];
+        $venue = $_POST['venue'];
+        $description = $_POST['description'];
 
-    $sql = "INSERT INTO `events`(`event_name`, `event_date`, `event_time`, `promoter_id`, `venue`, `description`, `flier`)
+        $sql = "INSERT INTO `events`(`event_name`, `event_date`, `event_time`, `promoter_id`, `venue`, `description`, `flier`)
      VALUES ('$name', '$date', '$time', '$organiser', '$venue', '$description', 'flier')";
-    $results = $conn->query($sql);
-    if ($results) {
-      echo "it worked";
-    } else {
-      echo $conn->error;
+        $results = $conn->query($sql);
+        if ($results) {
+            $user =  $_SESSION['user']['id'];
+            $transaction_id = "#" . date('Ym') . time();
+            $sql = "INSERT INTO `log`(`transaction_id`, `transaction`, `user`) VALUES ('$transaction_id', 'Added a new event called $name',  '$user')";
+            $conn->query($sql);
+        } else {
+            echo $conn->error;
+        }
     }
-  }
 
 
-  if (isset($_POST['delete_customer'])) {
-    $id = $_POST['id'];
-    $sql = "UPDATE `customers` SET `status`=0 WHERE id = $id";
-    $results = $conn->query($sql);
-    if ($results) {
-    }
-  }
+    ?>
 
-  ?>
-
-    <div id="page-container"
-        class="sidebar-o sidebar-dark enable-page-overlay side-scroll page-header-fixed main-content-narrow">
+    <div id="page-container" class="sidebar-o sidebar-dark enable-page-overlay side-scroll page-header-fixed main-content-narrow">
 
         <!-- Sidebar -->
         <!--
         Sidebar Mini Mode - Display Helper classes
-
+PACKAGES
+Event packages
+ANALYTICS
+Graphical
         Adding 'smini-hide' class to an element will make it invisible (opacity: 0) when the sidebar is in mini mode
         Adding 'smini-show' class to an element will make it visible (opacity: 1) when the sidebar is in mini mode
           If you would like to disable the transition animation, make sure to also add the 'no-transition' class to your element
@@ -118,8 +125,7 @@
                                     <div class="d-flex justify-content-between">
                                         <h3>Events</h3>
                                         <span>
-                                            <button type="button" class="js-swal-confirm btn btn-success"
-                                                data-bs-toggle="modal" data-bs-target="#addCustomer">
+                                            <button type="button" class="js-swal-confirm btn btn-success" data-bs-toggle="modal" data-bs-target="#addCustomer">
                                                 <i class="fa fa-plus text-white me-1"></i> New Event
                                             </button>
                                         </span>
@@ -146,57 +152,59 @@
                             </thead>
                             <tbody>
                                 <?php
-                $sql = "SELECT * FROM `events` JOIN promoter ON events.promoter_id = promoter.id";
-                $events = $conn->query($sql);
-                if ($events->num_rows > 0) {
-                  $sn = 0;
-                  foreach ($events as $event) :
-                ?>
-                                <tr>
-                                    <td hidden><?php echo $event['event_id']; ?></td>
-                                    <td hidden><?php echo $event['event_name']; ?></td>
-                                    <td hidden><?php echo $event['name']; ?></td>
-                                    <td hidden><?php echo $event['event_date']; ?></td>
-                                    <td hidden><?php echo $event['event_time']; ?></td>
-                                    <td hidden><?php echo $event['venue']; ?></td>
-                                    <td hidden><?php echo $event['description']; ?></td>
-                                    <td class="fw-semibold">
-                                        <?php echo $event['event_name'] ?>
-                                    </td>
-                                    <td class="text-center">
-                                        <?php echo $event['name'] ?>
-                                    </td>
-                                    <td class="text-center">
-                                        5
-                                    </td>
-                                    <td class="text-center">
-                                        vip 500000
-                                    </td>
-                                    <td class="text-center">
-                                        <?php echo $event['venue'] ?>
-                                    </td>
-                                    <td><?php echo $event['description']; ?></td>
+                                if($_SESSION['user']['role'] == 1){
+                                $sql = "SELECT * FROM `events` JOIN promoter ON events.promoter_id = promoter.id";
+                                }else{
+                                $id = $_SESSION['user']['user_id'];
+                                $sql = "SELECT * FROM `events` JOIN promoter ON events.promoter_id = promoter.id WHERE events.promoter_id = '$id'";
 
-                                    <td class="text-center">
-                                        <?php echo $event['event_date'] ?>
-                                        <?php echo $event['event_time'] ?>
-                                    </td>
-                                    <td class="text-center">
-                                        1000000
-                                    </td>
-                                    <td class="text-center">
-                                        <div class="input-group flex-nowrap">
-                                            <button class="btn btn-info edit_btn" data-bs-toggle='modal'
-                                                data-bs-target='#editCustomer'><i
-                                                    class="fa-sharp fa-solid fa-pen-to-square"></i></button>
-                                            <button class="btn btn-danger btn delete_btn " data-bs-toggle='modal'
-                                                data-bs-target='#deleteCustomer'><i
-                                                    class="fa-sharp fa-solid fa-trash "></i></button>
-                                        </div>
-                                    </td>
-                                </tr>
+                                }
+                                $events = $conn->query($sql);
+                                if ($events->num_rows > 0) {
+                                    $sn = 0;
+                                    foreach ($events as $event) :
+                                ?>
+                                        <tr>
+                                            <td hidden><?php echo $event['event_id']; ?></td>
+                                            <td hidden><?php echo $event['event_name']; ?></td>
+                                            <td hidden><?php echo $event['name']; ?></td>
+                                            <td hidden><?php echo $event['event_date']; ?></td>
+                                            <td hidden><?php echo $event['event_time']; ?></td>
+                                            <td hidden><?php echo $event['venue']; ?></td>
+                                            <td hidden><?php echo $event['description']; ?></td>
+                                            <td class="fw-semibold">
+                                                <?php echo $event['event_name'] ?>
+                                            </td>
+                                            <td class="text-center">
+                                                <?php echo $event['name'] ?>
+                                            </td>
+                                            <td class="text-center">
+                                                5
+                                            </td>
+                                            <td class="text-center">
+                                                vip 500000
+                                            </td>
+                                            <td class="text-center">
+                                                <?php echo $event['venue'] ?>
+                                            </td>
+                                            <td><?php echo $event['description']; ?></td>
+
+                                            <td class="text-center">
+                                                <?php echo $event['event_date'] ?>
+                                                <?php echo $event['event_time'] ?>
+                                            </td>
+                                            <td class="text-center">
+                                                1000000
+                                            </td>
+                                            <td class="text-center">
+                                                <div class="input-group flex-nowrap">
+                                                    <button class="btn btn-info edit_btn" data-bs-toggle='modal' data-bs-target='#editCustomer'><i class="fa-sharp fa-solid fa-pen-to-square"></i></button>
+                                                    <button class="btn btn-danger btn delete_btn " data-bs-toggle='modal' data-bs-target='#deleteCustomer'><i class="fa-sharp fa-solid fa-trash "></i></button>
+                                                </div>
+                                            </td>
+                                        </tr>
                                 <?php endforeach;
-                } ?>
+                                } ?>
 
                             </tbody>
                         </table>
@@ -234,14 +242,13 @@
                         </div>
                         <div class="mb-4">
                             <div class="input-group input-group-lg">
-                                <select class="form-select" id="floatingSelect"
-                                    aria-label="Floating label select example" name="organiser">
+                                <select class="form-select" id="floatingSelect" aria-label="Floating label select example" name="organiser">
                                     <?php
-                  $sql = "SELECT * FROM `promoter` WHERE promoter.status='1' AND promoter.enrolled='1'";
-                  $results = $conn->query($sql);
-                  while ($promoters = $results->fetch_assoc()) { ?>
-                                    <option value="<?php echo $promoters['id']; ?>"><?php echo $promoters['name']; ?>
-                                    </option>
+                                    $sql = "SELECT * FROM `promoter` WHERE promoter.status='1' AND promoter.enrolled='1'";
+                                    $results = $conn->query($sql);
+                                    while ($promoters = $results->fetch_assoc()) { ?>
+                                        <option value="<?php echo $promoters['id']; ?>"><?php echo $promoters['name']; ?>
+                                        </option>
                                     <?php } ?>
                                 </select>
                                 <span class="input-group-text">
@@ -388,57 +395,57 @@
 
     </script>
     <script>
-    $(document).ready(function() {
-        $('.delete_btn').click(function() {
-            var id = $(this).closest("tr").find('td:nth-child(1)').text().trim();
-            $('#id2').val(id);
-        });
-
-        let editor2;
-        ClassicEditor
-            .create(document.querySelector('#description'))
-            .then(newEditor => {
-                editor2 = newEditor;
-
-                console.log('EDITOR INSTANCE', editor2)
-            })
-            .catch(error => {
-                ceditor2.setData(description)
-                console.error(error);
+        $(document).ready(function() {
+            $('.delete_btn').click(function() {
+                var id = $(this).closest("tr").find('td:nth-child(1)').text().trim();
+                $('#id2').val(id);
             });
 
-        $('.edit_btn').click(function() {
-            var id = $(this).closest("tr").find('td:nth-child(1)').text().trim();
-            console.log("===================TEST=====================", id);
-            $('#id').val(id);
-            var name = $(this).closest("tr").find('td:nth-child(2)').text().trim();
-            $('#name').val(name);
-            var date = $(this).closest("tr").find('td:nth-child(4)').text().trim();
-            $('#date').val(date);
-            var time = $(this).closest("tr").find('td:nth-child(5)').text().trim();
-            $('#time').val(time);
-            var venue = $(this).closest("tr").find('td:nth-child(6)').text().trim();
-            $('#venue').val('Kampala');
-            var description = $(this).closest("tr").find('td:nth-child(7)').html().trim();
-            console.log('DESC', description)
+            let editor2;
+            ClassicEditor
+                .create(document.querySelector('#description'))
+                .then(newEditor => {
+                    editor2 = newEditor;
 
-            editor2.setData(description)
+                    console.log('EDITOR INSTANCE', editor2)
+                })
+                .catch(error => {
+                    ceditor2.setData(description)
+                    console.error(error);
+                });
 
+            $('.edit_btn').click(function() {
+                var id = $(this).closest("tr").find('td:nth-child(1)').text().trim();
+                console.log("===================TEST=====================", id);
+                $('#id').val(id);
+                var name = $(this).closest("tr").find('td:nth-child(2)').text().trim();
+                $('#name').val(name);
+                var date = $(this).closest("tr").find('td:nth-child(4)').text().trim();
+                $('#date').val(date);
+                var time = $(this).closest("tr").find('td:nth-child(5)').text().trim();
+                $('#time').val(time);
+                var venue = $(this).closest("tr").find('td:nth-child(6)').text().trim();
+                $('#venue').val('Kampala');
+                var description = $(this).closest("tr").find('td:nth-child(7)').html().trim();
+                console.log('DESC', description)
+
+                editor2.setData(description)
+
+
+            });
 
         });
-
-    });
     </script>
     <script>
-    let editor;
-    ClassicEditor
-        .create(document.querySelector('#editor'))
-        .then(newEditor => {
-            editor = newEditor;
-        })
-        .catch(error => {
-            console.error(error);
-        });
+        let editor;
+        ClassicEditor
+            .create(document.querySelector('#editor'))
+            .then(newEditor => {
+                editor = newEditor;
+            })
+            .catch(error => {
+                console.error(error);
+            });
     </script>
 
     </script>

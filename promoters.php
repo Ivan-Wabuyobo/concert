@@ -1,3 +1,9 @@
+<?php
+session_start();
+
+if(!isset($_SESSION['user'])){
+    header("location:login.php");
+}?>
 <!doctype html>
 <html lang="en">
 
@@ -43,7 +49,7 @@
 <body>
   <?php
   include "dbconnect.php";
-  if (isset($_POST['add_promoter'])) {
+  if (isset($_POST['add_anpromoter'])) {
     $name = $_POST['name'];
     $contact = $_POST['contact'];
     $email = $_POST['email'];
@@ -52,17 +58,25 @@
     $sql = "INSERT INTO `promoter`(`name`, `email`, `contact`, `enrolled`, `address`) VALUES ('$name', '$email', '$contact', '1', '$address')";
     $results = $conn->query($sql);
     if ($results) {
+      $user =  $_SESSION['user']['id'];
+      $transaction_id = "#" . date('Ym') . time();
+      $sql = "INSERT INTO `log`(`transaction_id`, `transaction`, `user`) VALUES ('$transaction_id', 'Added new promoter called $name',  '$user')";
+      $conn->query($sql);
     }
   }
   if (isset($_POST['edit_promoter'])) {
     $id = $_POST['id'];
     $name = $_POST['name'];
-    $contact = $_POST['contact'];
+    $contact = $_POST['canontact'];
     $email = $_POST['email'];
     $address = $_POST['address'];
     $sql = "UPDATE `promoter` SET `name`='$name',`email`='$email',`contact`='$contact',`address`='$address' WHERE promoter.id = '$id'";
     $results = $conn->query($sql);
     if ($results) {
+      $user =  $_SESSION['user']['id'];
+      $transaction_id = "#" . date('Ym') . time();
+      $sql = "INSERT INTO `log`(`transaction_id`, `transaction`, `user`) VALUES ('$transaction_id', 'Edited promoter details of $name',  '$user')";
+      $conn->query($sql);
     }
   }
 
@@ -71,24 +85,14 @@
     $sql = "UPDATE `promoter` SET `status`= 0 WHERE id = $id";
     $results = $conn->query($sql);
     if ($results) {
+      $user =  $_SESSION['user']['id'];
+      $transaction_id = "#" . date('Ym') . time();
+      $sql = "INSERT INTO `log`(`transaction_id`, `transaction`, `user`) VALUES ('$transaction_id', 'Deleted a promoter',  '$user')";
+      $conn->query($sql);
     }
   }
   ?>
   <div id="page-container" class="sidebar-o sidebar-dark enable-page-overlay side-scroll page-header-fixed main-content-narrow">
-
-
-    <!-- Sidebar -->
-    <!--
-        Sidebar Mini Mode - Display Helper classes
-
-        Adding 'smini-hide' class to an element will make it invisible (opacity: 0) when the sidebar is in mini mode
-        Adding 'smini-show' class to an element will make it visible (opacity: 1) when the sidebar is in mini mode
-          If you would like to disable the transition animation, make sure to also add the 'no-transition' class to your element
-
-        Adding 'smini-hidden' to an element will hide it when the sidebar is in mini mode
-        Adding 'smini-visible' to an element will show it (display: inline-block) only when the sidebar is in mini mode
-        Adding 'smini-visible-block' to an element will show it (display: block) only when the sidebar is in mini mode
-      -->
     <?php include "sidebar.php" ?>
     <!-- END Sidebar -->
 
@@ -98,12 +102,12 @@
 
     <!-- Main Container -->
     <main id="main-container">
-          <!-- Page Content -->
+      <!-- Page Content -->
       <div class="content">
 
         <!-- Dynamic Table with Export Buttons -->
         <div class="block block-rounded">
-            <div class="block-content block-content-full">
+          <div class="block-content block-content-full">
             <!-- DataTables init on table by adding .js-dataTable-buttons class, functionality is initialized in js/pages/be_tables_datatables.min.js which was auto compiled from _js/pages/be_tables_datatables.js -->
             <table class="table table-bordered table-striped table-vcenter js-dataTable-buttons">
               <thead>

@@ -113,9 +113,9 @@
               <thead>
                 <div class="container">
                   <div class=" d-flex justify-content-between">
-                    <h3>Events</h3>
+                    <h3>Completed Events</h3>
                     <span>
-                      <button type="button" class="js-swal-confirm btn btn-success" data-bs-toggle="modal" data-bs-target="#addCustomer">
+                      <button hidden type="button" class="js-swal-confirm btn btn-success" data-bs-toggle="modal" data-bs-target="#addCustomer">
                         <i class="fa fa-plus text-white me-1"></i> New Event
                       </button>
                     </span>
@@ -144,11 +144,16 @@
                 <?php
                 $date = date('Y-m-d');
                 $time = date('H:i:s');
-                $sql = "SELECT * FROM `events` JOIN promoter ON events.promoter_id = promoter.id WHERE events.event_date < '$date'";
+                $id = $_SESSION['user']['user_id'];
+                if($_SESSION['user']['role'] == 1){
+                  $sql = "SELECT * FROM `events` JOIN promoter ON events.promoter_id = promoter.id WHERE events.event_date < '$date'";
+
+                }else{
+                  $sql = "SELECT * FROM `events` JOIN promoter ON events.promoter_id = promoter.id WHERE events.event_date < '$date' AND events.promoter_id = '$id'";
+                }
                 $events = $conn->query($sql);
                 if ($events->num_rows > 0) {
-                  $sn = 0;
-                  foreach ($events as $event) :
+                      foreach ($events as $event) :
                 ?>
                     <tr>
                       <td hidden><?php echo $event['event_id']; ?></td>
