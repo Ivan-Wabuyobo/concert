@@ -1,8 +1,8 @@
 <?php
 session_start();
 include "dbconnect.php";
-if(!isset($_SESSION['user'])){
-    header("location:login.php");
+if (!isset($_SESSION['user'])) {
+  header("location:login.php");
 }
 
 ?>
@@ -31,6 +31,7 @@ if(!isset($_SESSION['user'])){
 
     <!-- Main Container -->
     <main id="main-container">
+
       <!-- Hero -->
       <div class="content">
         <div class="d-md-flex justify-content-md-between align-items-md-center py-3 pt-md-3 pb-md-0 text-center text-md-start">
@@ -39,7 +40,7 @@ if(!isset($_SESSION['user'])){
               Dashboard
             </h1>
             <p class="fw-medium mb-0 text-muted">
-              You are Welcome,<b> <?php echo $_SESSION['user']['username']?>!</b> Use the Dashboard to know how the system is <a class="fw-medium" href="javascript:void(0)">performing</a>.
+              You are Welcome,<b> <?php echo $_SESSION['user']['username'] ?>!</b> Use the Dashboard to know how the system is <a class="fw-medium" href="javascript:void(0)">performing</a>.
             </p>
           </div>
           <div class="mt-4 mt-md-0">
@@ -71,7 +72,9 @@ if(!isset($_SESSION['user'])){
                   <i class="fa fa-users fa-lg text-primary"></i>
                 </div>
                 <?php
-                $sql = "SELECT * FROM `users`";
+                $id = $_SESSION['user']['user_id'];
+
+                $sql = "SELECT * FROM `events` WHERE promoter_id = '$id'";
                 $results = $conn->query($sql);
                 ?>
                 <div class="fs-1 fw-bold"><?php echo $results->num_rows ?></div>
@@ -79,7 +82,7 @@ if(!isset($_SESSION['user'])){
 
               </div>
               <div class="block-content block-content-full block-content-sm bg-body-light fs-sm">
-                <a class="fw-medium" href="users.php">
+                <a class="fw-medium" href="events.php">
                   see more...
                   <i class="fa fa-arrow-right ms-1 opacity-25"></i>
                 </a>
@@ -91,18 +94,20 @@ if(!isset($_SESSION['user'])){
               <div class="block-content block-content-full flex-grow-1">
                 <div class="item rounded-3 bg-body mx-auto my-3">
                   <i class="fa fa-users fa-lg text-success"></i>
-                  
+
                 </div>
                 <div class="fs-1 fw-bold"><?php
-
-                                          $sql = "SELECT * FROM `promoter`";
+                                          $id = $_SESSION['user']['user_id'];
+                                          $sql = "SELECT COUNT(*) as upcoming_events
+                                          FROM events
+                                          WHERE CONCAT(events.event_date, ' ', events.event_time) > NOW() AND events.promoter_id='$id'";
                                           $results = $conn->query($sql);
                                           echo $results->num_rows;
                                           ?></div>
                 <div class="text-muted mb-3">Upcoming Events</div>
               </div>
               <div class="block-content block-content-full block-content-sm bg-body-light fs-sm">
-                <a class="fw-medium" href="promoters.php">
+                <a class="fw-medium" href="pending_events.php">
                   Details..
                   <i class="fa fa-arrow-right ms-1 opacity-25"></i>
                 </a>
@@ -136,7 +141,7 @@ if(!isset($_SESSION['user'])){
             <div class="block block-rounded text-center d-flex flex-column h-100 mb-0">
               <div class="block-content block-content-full flex-grow-1">
                 <div class="item rounded-3 bg-body mx-auto my-3">
-                <i class="fa-solid fa-money-check-dollar fa-lg text-danger"></i>
+                  <i class="fa-solid fa-money-check-dollar fa-lg text-danger"></i>
 
                 </div>
                 <div class="fs-1 fw-bold"><?php
@@ -224,7 +229,10 @@ if(!isset($_SESSION['user'])){
                         return round($difference / 31536000) . " year ago";
                       }
                     }
-                    $sql = "SELECT * FROM `log` JOIN users ON users.id = log.user ORDER BY log.id DESC" ;
+                    $userId = $_SESSION['user']['user_id'];
+                    $role = $_SESSION['user']['role'];
+
+                    $sql = "SELECT * FROM `log` JOIN users ON users.id = log.user WHERE user_id = '$userId' AND $role='$role' ORDER BY log.id DESC";
                     $results = $conn->query($sql);
                     while ($transaction = $results->fetch_assoc()) {
                     ?>
@@ -252,8 +260,8 @@ if(!isset($_SESSION['user'])){
 
                         <td class="text-center">
                           <?php echo
-                           time_ago($transaction['uploaded_at']);
-                           ?>
+                          time_ago($transaction['uploaded_at']);
+                          ?>
                         </td>
                       </tr>
                     <?php }  ?>

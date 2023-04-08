@@ -1,9 +1,9 @@
 <?php
 session_start();
 
-if(!isset($_SESSION['user'])){
+if (!isset($_SESSION['user'])) {
     header("location:login.php");
-}?>
+} ?>
 
 <!doctype html>
 <html lang="en">
@@ -42,7 +42,7 @@ if(!isset($_SESSION['user'])){
 </head>
 
 <body>
-    
+
     <?php
     include "dbconnect.php";
     if (isset($_POST['edit_event'])) {
@@ -66,7 +66,11 @@ if(!isset($_SESSION['user'])){
         $name = $_POST['name'];
         $time = $_POST['time'];
         $date = $_POST['date'];
-        $organiser = $_POST['organiser'];
+        if($_SESSION['user']['role'] == '1'){
+            $organiser = $_POST['organiser'];
+        }else{
+            $organiser = $_SESSION['user']['user_id'];
+        }
         $venue = $_POST['venue'];
         $description = $_POST['description'];
 
@@ -88,21 +92,6 @@ if(!isset($_SESSION['user'])){
 
     <div id="page-container" class="sidebar-o sidebar-dark enable-page-overlay side-scroll page-header-fixed main-content-narrow">
 
-        <!-- Sidebar -->
-        <!--
-        Sidebar Mini Mode - Display Helper classes
-PACKAGES
-Event packages
-ANALYTICS
-Graphical
-        Adding 'smini-hide' class to an element will make it invisible (opacity: 0) when the sidebar is in mini mode
-        Adding 'smini-show' class to an element will make it visible (opacity: 1) when the sidebar is in mini mode
-          If you would like to disable the transition animation, make sure to also add the 'no-transition' class to your element
-
-        Adding 'smini-hidden' to an element will hide it when the sidebar is in mini mode
-        Adding 'smini-visible' to an element will show it (display: inline-block) only when the sidebar is in mini mode
-        Adding 'smini-visible-block' to an element will show it (display: block) only when the sidebar is in mini mode
-      -->
         <?php include "sidebar.php" ?>
         <!-- END Sidebar -->
 
@@ -139,25 +128,23 @@ Graphical
                                     <th hidden></th>
                                     <th hidden></th>
                                     <th hidden></th>
-                                    <th>Event</th>
-                                    <th>Organiser</th>
-                                    <th>Bookings</th>
-                                    <th>Packages</th>
-                                    <th>Venue</th>
-                                    <th>Desccription</th>
-                                    <th>Date</th>
-                                    <th>Amount collected</th>
-                                    <th>Action</th>
+                                    <th class="text-center">Event</th>
+                                    <th class="text-center">Organiser</th>
+                                    <th class="text-center">Bookings</th>
+                                    <th class="text-center">Packages</th>
+                                    <th class="text-center">Venue</th>
+                                    <th class="text-center">Date</th>
+                                    <th class="text-center">Amount collected</th>
+                                    <th class="text-center">Action</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 <?php
-                                if($_SESSION['user']['role'] == 1){
-                                $sql = "SELECT * FROM `events` JOIN promoter ON events.promoter_id = promoter.id";
-                                }else{
-                                $id = $_SESSION['user']['user_id'];
-                                $sql = "SELECT * FROM `events` JOIN promoter ON events.promoter_id = promoter.id WHERE events.promoter_id = '$id'";
-
+                                if ($_SESSION['user']['role'] == 1) {
+                                    $sql = "SELECT * FROM `events` JOIN promoter ON events.promoter_id = promoter.id";
+                                } else {
+                                    $id = $_SESSION['user']['user_id'];
+                                    $sql = "SELECT * FROM `events` JOIN promoter ON events.promoter_id = promoter.id WHERE events.promoter_id = '$id'";
                                 }
                                 $events = $conn->query($sql);
                                 if ($events->num_rows > 0) {
@@ -172,7 +159,7 @@ Graphical
                                             <td hidden><?php echo $event['event_time']; ?></td>
                                             <td hidden><?php echo $event['venue']; ?></td>
                                             <td hidden><?php echo $event['description']; ?></td>
-                                            <td class="fw-semibold">
+                                            <td class="fw-semibold text-center">
                                                 <?php echo $event['event_name'] ?>
                                             </td>
                                             <td class="text-center">
@@ -187,14 +174,18 @@ Graphical
                                             <td class="text-center">
                                                 <?php echo $event['venue'] ?>
                                             </td>
-                                            <td><?php echo $event['description']; ?></td>
 
                                             <td class="text-center">
-                                                <?php echo $event['event_date'] ?>
-                                                <?php echo $event['event_time'] ?>
+                                                Date:
+                                                <?php echo $event['event_date'] ?></br>
+                                                Time: <?php 
+                                                $time24 = $event['event_time'];
+                                                $time = new DateTime($time24);
+                                                echo $time->format('h:i a');
+                                                ?>
                                             </td>
                                             <td class="text-center">
-                                                1000000
+                                                <?php echo number_format(100000)?>
                                             </td>
                                             <td class="text-center">
                                                 <div class="input-group flex-nowrap">
@@ -240,6 +231,7 @@ Graphical
                                 </span>
                             </div>
                         </div>
+                        <?php if($_SESSION['user']['role'] == '1'){?>
                         <div class="mb-4">
                             <div class="input-group input-group-lg">
                                 <select class="form-select" id="floatingSelect" aria-label="Floating label select example" name="organiser">
@@ -256,6 +248,7 @@ Graphical
                                 </span>
                             </div>
                         </div>
+                        <?php }?>
                         <div class="mb-4">
                             <label for="floatingSelect">Event Date</label>
 
@@ -349,7 +342,7 @@ Graphical
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h1 class="modal-title fs-5" id="exampleModalLabel">Delete Customer</h1>
+                    <h1 class="modal-title fs-5" id="exampleModalLabel">Delete Event</h1>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <form action="" method="POST">

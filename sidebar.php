@@ -45,30 +45,41 @@
     <div class="content-side">
       <ul class="nav-main">
         <li class="nav-main-item">
-          <a class="nav-main-link active" href="dashboard.php">
-            <i class="nav-main-link-icon fa fa-person"></i>
-            <span class="nav-main-link-name">Dashboard</span>
+          <a class="nav-main-link active" href="<?php if ($_SESSION['user']['role'] == '1') {
+                                                  echo "dashboard.php";
+                                                } else {
+                                                  echo "promoter_dashboard.php";
+                                                } ?>">
+            <i class="nav-main-link-icon fa fa-home text-warning"></i>
+            <span class="nav-main-link-name">Home</span>
           </a>
         </li>
         <?php
-        if ($_SESSION['user']['role'] == 1) {
+        if ($_SESSION['user']['role'] == '1') {
         ?>
-          <li class="nav-main-heading">Promoters</li>
+          <li class="nav-main-heading">System users</li>
+
+          <li class="nav-main-item">
+            <a class="nav-main-link " aria-haspopup="true" aria-expanded="false" href="users.php">
+              <i class="nav-main-link-icon fa fa-user text-warning"></i>
+              <span class="nav-main-link-name">users</span>
+            </a>
+          </li>
           <li class="nav-main-item">
             <a class="nav-main-link " aria-haspopup="true" aria-expanded="false" href="promoters.php">
-              <i class="nav-main-link-icon fa fa-plus"></i>
+              <i class="nav-main-link-icon fa fa-user text-warning"></i>
               <span class="nav-main-link-name">View all Promoters</span>
             </a>
           </li>
-          <li class="nav-main-heading">Customers</li>
+          
           <li class="nav-main-item">
             <a class="nav-main-link " aria-haspopup="true" aria-expanded="false" href="customers.php">
-              <i class="nav-main-link-icon fa fa-plus"></i>
+              <i class="nav-main-link-icon fa fa-user text-warning"></i>
               <span class="nav-main-link-name">View all customers</span>
             </a>
           </li>
         <?php };
-
+1
 
         ?>
 
@@ -79,27 +90,27 @@
         ?>
           <li class="nav-main-item">
             <a class="nav-main-link " aria-haspopup="true" aria-expanded="false" href="events.php">
-              <i class="nav-main-link-icon fa fa-plus"></i>
+              <i class="nav-main-link-icon fa fa-bolt text-warning"></i>
               <span class="nav-main-link-name">All Events</span>
             </a>
           </li>
         <?php } else { ?>
           <li class="nav-main-item">
             <a class="nav-main-link " aria-haspopup="true" aria-expanded="false" href="events.php">
-              <i class="nav-main-link-icon fa fa-plus"></i>
+              <i class="nav-main-link-icon fa fa-bolt text-warning"></i>
               <span class="nav-main-link-name">My Events</span>
             </a>
           </li>
         <?php } ?>
         <li class="nav-main-item">
           <a class="nav-main-link " aria-haspopup="true" aria-expanded="false" href="pending_events.php">
-            <i class="nav-main-link-icon fa fa-plus"></i>
+            <i class="nav-main-link-icon fa fa-circle-xmark text-warning"></i>
             <span class="nav-main-link-name">Pending Events</span>
           </a>
         </li>
         <li class="nav-main-item">
           <a class="nav-main-link " aria-haspopup="true" aria-expanded="false" href="completed_events.php">
-            <i class="nav-main-link-icon fa fa-plus"></i>
+            <i class="nav-main-link-icon fa fa-check text-warning"></i>
             <span class="nav-main-link-name">Completed Events</span>
           </a>
         </li>
@@ -107,17 +118,17 @@
         <li class="nav-main-heading">Packages</li>
         <li class="nav-main-item">
           <a class="nav-main-link " aria-haspopup="true" aria-expanded="false" href="packages.php">
-            <i class="nav-main-link-icon fa fa-plus"></i>
+            <i class="nav-main-link-icon fa fa-truck text-warning"></i>
             <span class="nav-main-link-name">Event packages</span>
           </a>
         </li>
         <?php
-        if ($_SESSION['user'] = 1) {
+        if ($_SESSION['user']['role'] == 1) {
         ?>
           <li class="nav-main-heading">Analytics</li>
           <li class="nav-main-item">
             <a class="nav-main-link " aria-haspopup="true" aria-expanded="false" href="graphical.php">
-              <i class="nav-main-link-icon fa fa-plus"></i>
+              <i class="nav-main-link-icon fa fa-chart-line text-warning"></i>
               <span class="nav-main-link-name">Graphical</span>
             </a>
           </li>

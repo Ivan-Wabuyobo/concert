@@ -63,7 +63,8 @@ if(!isset($_SESSION['user'])){
         $name = $_POST['name'];
         $event = $_POST['event'];
         $price = $_POST['amount'];
-        $sql = "INSERT INTO `package`(`name`, `amount`, `event`) VALUES ('$name', '$price', '$event')";
+        $promoterId = $_SESSION['user']['user_id'];                                                                                                         
+        $sql = "INSERT INTO `package`(`name`, `amount`, `event`, `event_promoter`) VALUES ('$name', '$price', '$event', '$promoterId')";
         $results = $conn->query($sql);
         if ($results) {
             echo "it worked";
@@ -129,11 +130,11 @@ if(!isset($_SESSION['user'])){
                                     <th hidden></th>
                                     <th hidden></th>
                                     <th hidden></th>
-                                    <th>Package</th>
-                                    <th>Event</th>
-                                    <th>Amount</th>
-                                    <th>Date Added</th>
-                                    <th>Action</th>
+                                    <th class="text-center">Package</th>
+                                    <th class="text-center">Event</th>
+                                    <th class="text-center">Amount</th>
+                                    <th class="text-center">Date Added</th>
+                                    <th class="text-center">Action</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -156,7 +157,13 @@ if(!isset($_SESSION['user'])){
                                         return round($difference / 31536000) . " year ago";
                                     }
                                 }
+                                if($_SESSION['user']['role'] == '1'){
                                 $sql = "SELECT * FROM `package` JOIN events ON package.event = events.event_id";
+
+                                }else{
+                                    $promoterId = $_SESSION['user']['user_id'];                                    
+                                    $sql = "SELECT * FROM `package` JOIN events ON package.event = events.event_id WHERE  event_promoter = '$promoterId'";
+                                }
                                 $packages = $conn->query($sql);
                                 if ($packages->num_rows > 0) {
                                     foreach ($packages as $package) :
@@ -165,7 +172,7 @@ if(!isset($_SESSION['user'])){
                                         <tr>
                                             <td hidden><?php echo $package['id']; ?></td>
                                             <td hidden><?php echo $package['name']; ?></td>
-                                            <td hidden><?php echo $package['amount']; ?></td>
+                                            <td hidden> <?php echo $package['amount']; ?></td>
                                             <td class="text-center">
                                                 <?php echo $package['name'] ?>
                                             </td>
@@ -173,7 +180,7 @@ if(!isset($_SESSION['user'])){
                                                 <?php echo $package['event_name'] ?>
                                             </td>
                                             <td class="text-center">
-                                                <?php echo $package['amount']; ?>
+                                            UGX <?php echo number_format($package['amount']); ?>
                                             </td>
                                             <td class="text-center">
                                                 <?php echo time_ago($package['date']) ?>
@@ -224,10 +231,11 @@ if(!isset($_SESSION['user'])){
                                 <select class="form-select" id="floatingSelect" aria-label="Floating label select example" name="event">
                                     <option selected>Select Event</option>
                                     <?php
-                                    $sql = "SELECT * FROM `events` WHERE events.status='1'";
+                                    $promoterId = $_SESSION['user']['user_id'];
+                                    $sql = "SELECT * FROM `events` WHERE events.status='1' AND events.promoter_id = '$promoterId'";
                                     $results = $conn->query($sql);
                                     while ($events = $results->fetch_assoc()) { ?>
-                                        <option value="<?php echo $events['id']; ?>"><?php echo $events['event_name']; ?>
+                                        <option value="<?php echo $events['event_id']; ?>"><?php echo $events['event_name']; ?>
                                         </option>
                                     <?php } ?>
                                 </select>
@@ -290,7 +298,7 @@ if(!isset($_SESSION['user'])){
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h1 class="modal-title fs-5" id="exampleModalLabel">Delete Customer</h1>
+                    <h1 class="modal-title fs-5" id="exampleModalLabel">Delete Package</h1>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <form action="" method="POST">
@@ -299,7 +307,7 @@ if(!isset($_SESSION['user'])){
                     </div>
                     <i class="fa-duotone fa-brake-warning text-danger"></i>
                     <h3 class="container">
-                        Are you sure, you want to delete this Event
+                        Are you sure, you want to delete this package
                     </h3>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>

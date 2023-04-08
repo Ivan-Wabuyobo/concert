@@ -1,3 +1,6 @@
+<?php
+session_start();
+?>
 <!doctype html>
 <html lang="en">
 
@@ -134,22 +137,42 @@
                   <th>Bookings</th>
                   <th>Packages</th>
                   <th>Venue</th>
-                  <th>Desccription</th>
-                  <th>Date</th>
+  
+                  <th>Completed</th>
                   <th>Amount collected</th>
                   <th>Action</th>
                 </tr>
               </thead>
               <tbody>
                 <?php
+                function eventTimeAgo($event_date) {
+                  $event = new DateTime($event_date);
+                  $now = new DateTime();
+                  $diff = $now->diff($event);
+                
+                  if ($diff->y > 0) {
+                    return $diff->y . " years ago";
+                  } elseif ($diff->m > 0) {
+                    return $diff->m . " months ago";
+                  } elseif ($diff->d > 0) {
+                    return $diff->d . " days ago";
+                  } elseif ($diff->h > 0) {
+                    return $diff->h . " hours ago";
+                  } elseif ($diff->i > 0) {
+                    return $diff->i . " minutes ago";
+                  } else {
+                    return "just now";
+                  }
+                }
+                
                 $date = date('Y-m-d');
                 $time = date('H:i:s');
                 $id = $_SESSION['user']['user_id'];
                 if($_SESSION['user']['role'] == 1){
-                  $sql = "SELECT * FROM `events` JOIN promoter ON events.promoter_id = promoter.id WHERE events.event_date < '$date'";
+                  $sql = "SELECT * FROM `events` JOIN promoter ON events.promoter_id = promoter.id WHERE events.event_date < DATE(NOW()) OR ((events.event_date = DATE(NOW()) AND events.event_time <= TIME(NOW())))";
 
                 }else{
-                  $sql = "SELECT * FROM `events` JOIN promoter ON events.promoter_id = promoter.id WHERE events.event_date < '$date' AND events.promoter_id = '$id'";
+                  $sql = "SELECT * FROM `events` JOIN promoter ON events.promoter_id = promoter.id  WHERE events.event_date < DATE(NOW()) OR ((events.event_date = DATE(NOW()) AND events.event_time <= TIME(NOW()))) AND events.promoter_id = '$id'";
                 }
                 $events = $conn->query($sql);
                 if ($events->num_rows > 0) {
@@ -178,11 +201,16 @@
                       <td class="text-center">
                         <?php echo $event['venue'] ?>
                       </td>
-                      <td><?php echo $event['description']; ?></td>
 
                       <td class="text-center">
-                        <?php echo $event['event_date'] ?>
-                        <?php echo $event['event_time'] ?>
+                        
+                        <?php 
+                        $edate = $event['event_date'];
+                        $etime = $event['event_time'];
+                        $date = new DateTime("$edate $etime");
+                        $result = $date->format('Y-m-d H:i:s');
+                        echo eventTimeAgo($result) ?>
+                        
                       </td>
                       <td class="text-center">
                         1000000
@@ -339,7 +367,7 @@
     <div class="modal-dialog">
       <div class="modal-content">
         <div class="modal-header">
-          <h1 class="modal-title fs-5" id="exampleModalLabel">Delete Customer</h1>
+          <h1 class="modal-title fs-5" id="exampleModalLabel">Delete Event</h1>
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
         <form action="" method="POST">

@@ -56,7 +56,7 @@
                 </div>
               </form>
             </div>
-          </div>Dash
+          </div>
         </div>
         <!-- END Header Search -->
 

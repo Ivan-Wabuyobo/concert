@@ -53,25 +53,27 @@ session_start();
       //the user exists its time to log them in
       $row = $results->fetch_assoc();
       $_SESSION['user'] = $row;
-
-      if ($_SESSION['user']['role'] == 1) {
+    
+      if ($_SESSION['user']['role'] == '1') {
+        $userId = $_SESSION['user']['id'];
+        $transaction_id = "#" . date('Ym') . time();
+        $sql = "INSERT INTO `log`(`transaction_id`, `transaction`, `user`) VALUES ('$transaction_id', 'logged in successfully', '$userId')";
+        $conn->query($sql);
         header("location:dashboard.php");
+
+      } else if ($_SESSION['user']['role'] == '2') {
         $userId = $_SESSION['user']['id'];
         $transaction_id = "#" . date('Ym') . time();
         $sql = "INSERT INTO `log`(`transaction_id`, `transaction`, `user`) VALUES ('$transaction_id', 'logged in successfully', '$userId')";
         $conn->query($sql);
-      } else if ($_SESSION['user']['role'] == 2) {
-        header("location:dashboard2.php");
+        header("location:promoter_dashboard.php");
+      } else if ($_SESSION['user']['role'] == '3') {
         $userId = $_SESSION['user']['id'];
         $transaction_id = "#" . date('Ym') . time();
         $sql = "INSERT INTO `log`(`transaction_id`, `transaction`, `user`) VALUES ('$transaction_id', 'logged in successfully', '$userId')";
         $conn->query($sql);
-      } else if ($_SESSION['user']['role'] == 3) {
         header("location:home.php");
-        $userId = $_SESSION['user']['id'];
-        $transaction_id = "#" . date('Ym') . time();
-        $sql = "INSERT INTO `log`(`transaction_id`, `transaction`, `user`) VALUES ('$transaction_id', 'logged in successfully', '$userId')";
-        $conn->query($sql);
+
       }
     }
   }

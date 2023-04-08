@@ -8,6 +8,7 @@ $conn->query($sql);
 
 // remove all session variables
 session_unset();
+session_destroy();
 
 // redirect the user to the index page
 header("location:login.php");
