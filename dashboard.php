@@ -1,3 +1,11 @@
+<?php
+session_start();
+include "dbconnect.php";
+if(!isset($_SESSION['user'])){
+  header("location:login.php");
+}
+
+?>
 <!doctype html>
 <html lang="en">
 
@@ -61,13 +69,17 @@
                 <div class="item rounded-3 bg-body mx-auto my-3">
                   <i class="fa fa-users fa-lg text-primary"></i>
                 </div>
-                <div class="fs-1 fw-bold">2,388</div>
+                <?php
+                $sql = "SELECT * FROM `users`";
+                $results = $conn->query($sql);
+                ?>
+                <div class="fs-1 fw-bold"><?php echo $results->num_rows ?></div>
                 <div class="text-muted mb-3">Total users</div>
 
               </div>
               <div class="block-content block-content-full block-content-sm bg-body-light fs-sm">
                 <a class="fw-medium" href="users.php">
-                 see more...
+                  see more...
                   <i class="fa fa-arrow-right ms-1 opacity-25"></i>
                 </a>
               </div>
@@ -79,7 +91,12 @@
                 <div class="item rounded-3 bg-body mx-auto my-3">
                   <i class="fa fa-users fa-lg text-primary"></i>
                 </div>
-                <div class="fs-1 fw-bold">2,388</div>
+                <div class="fs-1 fw-bold"><?php
+
+                                          $sql = "SELECT * FROM `promoter`";
+                                          $results = $conn->query($sql);
+                                          echo $results->num_rows;
+                                          ?></div>
                 <div class="text-muted mb-3">Total Promoters</div>
 
               </div>
@@ -97,13 +114,18 @@
                 <div class="item rounded-3 bg-body mx-auto my-3">
                   <i class="fa fa-users fa-lg text-primary"></i>
                 </div>
-                <div class="fs-1 fw-bold">2,388</div>
+                <div class="fs-1 fw-bold"><?php
+
+                                          $sql = "SELECT * FROM `customers`";
+                                          $results = $conn->query($sql);
+                                          echo $results->num_rows;
+                                          ?></div>
                 <div class="text-muted mb-3">Total Customers</div>
 
               </div>
               <div class="block-content block-content-full block-content-sm bg-body-light fs-sm">
                 <a class="fw-medium" href="customers.php">
-                Details..
+                  Details..
                   <i class="fa fa-arrow-right ms-1 opacity-25"></i>
                 </a>
               </div>
@@ -113,15 +135,19 @@
             <div class="block block-rounded text-center d-flex flex-column h-100 mb-0">
               <div class="block-content block-content-full flex-grow-1">
                 <div class="item rounded-3 bg-body mx-auto my-3">
-                  <i class="fa fa-users fa-lg text-primary"></i>
+                  <i class="fa-solid fa-money-bill text-primary"></i>
                 </div>
-                <div class="fs-1 fw-bold">300,0000</div>
-                <div class="text-muted mb-3">Total Recieved</div>
+                <div class="fs-1 fw-bold"><?php
+                                          $sql = "SELECT SUM(payments.amount) AS payments FROM `payments`";
+                                          $results = $conn->query($sql);
+                                          echo $results->fetch_assoc()['payments'];
+                                          ?></div>
+                <div class="text-muted mb-3">Total Payments</div>
 
               </div>
               <div class="block-content block-content-full block-content-sm bg-body-light fs-sm">
-                <a class="fw-medium" href="javascript:void(0)">
-                Details..
+                <a class="fw-medium" href="payments.php">
+                  Details..
                   <i class="fa fa-arrow-right ms-1 opacity-25"></i>
                 </a>
               </div>
@@ -137,7 +163,7 @@
             <div class="block block-rounded block-mode-loading-refresh">
               <div class="block-header block-header-default">
                 <h3 class="block-title">
-                  Latest concerts
+                  Latest Transactions
                 </h3>
                 <div class="block-options">
                   <button type="button" class="btn-block-option" data-toggle="block-option" data-action="state_toggle" data-action-mode="demo">
@@ -169,68 +195,68 @@
                 <table class="table table-striped table-hover table-borderless table-vcenter fs-sm">
                   <thead>
                     <tr class="text-uppercase">
-                      <th>Event</th>
-                      <th class="d-none d-xl-table-cell">Date</th>
-                      <th>Status</th>
-                      <th class="d-none d-sm-table-cell text-end">Price</th>
-                      <th class="d-none d-sm-table-cell text-end">Bookings</th>
-                      <th class="d-none d-sm-table-cell text-end">Details</th>
+                      <th>Transaction Id</th>
+                      <th>Transaction Type</th>
+                      <th>Performed by</th>
+                      <th>user Role</th>
+                      <th>Transaction Time</th>
                     </tr>
                   </thead>
                   <tbody>
-                    <tr>
-                      <td>
-                        <span class="fw-semibold">iPhone 11 Pro</span>
-                      </td>
-                      <td class="d-none d-xl-table-cell">
-                        <span class="fs-sm text-muted">today</span>
-                      </td>
-                      <td>
-                        <span class="fw-semibold text-warning">Pending..</span>
-                      </td>
-                      <td class="d-none d-sm-table-cell text-end fw-medium">
-                        $1199,99
-                      </td>
-                      <td class="d-none d-sm-table-cell text-end fw-medium">
-                        9
-                      </td>
-                      <td class="text-center text-nowrap fw-medium">
-                        <a href="javascript:void(0)">
-                          View
-                        </a>
-                      </td>
-                    </tr>
-                    <tr>
-                      <td>
-                        <span class="fw-semibold">MacBook Pro 15"</span>
-                      </td>
-                      <td class="d-none d-xl-table-cell">
-                        <span class="fs-sm text-muted">today</span>
-                      </td>
-                      <td>
-                        <span class="fw-semibold text-warning">Pending..</span>
-                      </td>
-                      <td class="d-none d-sm-table-cell text-end fw-medium">
-                        $2.299,00
-                      </td>
-                      <td class="d-none d-sm-table-cell text-end fw-medium">
-                        9
-                      </td>
-                      <td class="text-center text-nowrap fw-medium">
-                        <a href="javascript:void(0)">
-                          View
-                        </a>
-                      </td>
-                    </tr>
+                    <?php
 
+                    function time_ago($datetime)
+                    {
+                      $timestamp = strtotime($datetime);
+                      $difference = time() - $timestamp;
+
+                      if ($difference < 60) {
+                        return $difference . " sec ago";
+                      } elseif ($difference < 3600) {
+                        return round($difference / 60) . " min ago";
+                      } elseif ($difference < 86400) {
+                        return round($difference / 3600) . " hour ago";
+                      } elseif ($difference < 31536000) {
+                        return round($difference / 86400) . " day ago";
+                      } else {
+                        return round($difference / 31536000) . " year ago";
+                      }
+                    }
+                    $sql = "SELECT * FROM `log` JOIN users ON users.id = log.user ORDER BY log.id DESC" ;
+                    $results = $conn->query($sql);
+                    while ($transaction = $results->fetch_assoc()) {
+                    ?>
+                      <tr>
+                        <td>
+                          <span class="fw-semibold"><?php echo $transaction['transaction_id'] ?></span>
+                        </td>
+                        <td>
+                          <?php echo $transaction['transaction'] ?>
+                        </td>
+                        <td>
+                          <span class="fs-sm text-muted"><?php echo $transaction['username'] ?></span>
+                        </td>
+
+                        <td>
+                          <?php if ($transaction['role'] == '1') {
+                            echo "Admin";
+                          } else if ($transaction['role'] == '2') {
+                            echo "Promoter/Organiser";
+                          } else {
+                            echo "Customer/member";
+                          }
+                          ?>
+                        </td>
+
+                        <td class="text-center">
+                          <?php echo
+                           time_ago($transaction['uploaded_at']);
+                           ?>
+                        </td>
+                      </tr>
+                    <?php }  ?>
                   </tbody>
                 </table>
-              </div>
-              <div class="block-content block-content-full block-content-sm bg-body-light fs-sm text-center">
-                <a class="fw-medium" href="javascript:void(0)">
-                  View all...
-                  <i class="fa fa-arrow-right ms-1 opacity-25"></i>
-                </a>
               </div>
             </div>
             <!-- END Latest Orders -->
@@ -244,7 +270,7 @@
     <!-- END Main Container -->
 
     <!-- Footer -->
-   <?php include "footer.php"?>
+    <?php include "footer.php" ?>
     <!-- END Footer -->
   </div>
   <!-- END Page Container -->

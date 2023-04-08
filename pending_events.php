@@ -1,3 +1,11 @@
+<?php
+session_start();
+
+if (!isset($_SESSION['user'])) {
+    header("location:login.php");
+}
+
+?>
 <!doctype html>
 <html lang="en">
 
@@ -113,9 +121,9 @@
                             <thead>
                                 <div class="container">
                                     <div class=" d-flex justify-content-between">
-                                        <h3>Events</h3>
+                                        <h3>Pending Events</h3>
                                         <span>
-                                            <button type="button" class="js-swal-confirm btn btn-success" data-bs-toggle="modal" data-bs-target="#addCustomer">
+                                            <button hidden type="button" class="js-swal-confirm btn btn-success" data-bs-toggle="modal" data-bs-target="#addCustomer">
                                                 <i class="fa fa-plus text-white me-1"></i> New Event
                                             </button>
                                         </span>
@@ -134,8 +142,8 @@
                                     <th>Bookings</th>
                                     <th>Packages</th>
                                     <th>Venue</th>
-                                    <th>Desccription</th>
-                                    <th>Date</th>
+
+                                    <th>Time to the Event</th>
                                     <th>Amount collected</th>
                                     <th>Action</th>
                                 </tr>
@@ -144,7 +152,12 @@
                                 <?php
                                 $date = date('Y-m-d');
                                 $time = date('H:i:s');
-                                $sql = "SELECT * FROM `events` JOIN promoter ON events.promoter_id = promoter.id WHERE events.event_date > '$date'";
+                                $id = $_SESSION['user']['user_id'];
+                                if ($_SESSION['user']['role'] == 1) {
+                                    $sql = "SELECT * FROM `events` JOIN promoter ON events.promoter_id = promoter.id WHERE events.event_date > '$date'";
+                                } else {
+                                    $sql = "SELECT * FROM `events` JOIN promoter ON events.promoter_id = promoter.id WHERE events.event_date > '$date' AND events.promoter_id = '$id'";
+                                }
                                 $events = $conn->query($sql);
                                 if ($events->num_rows > 0) {
                                     $sn = 0;
@@ -173,14 +186,40 @@
                                             <td class="text-center">
                                                 <?php echo $event['venue'] ?>
                                             </td>
-                                            <td><?php echo $event['description']; ?></td>
 
                                             <td class="text-center">
-                                                <?php echo $event['event_date'] ?>
-                                                <?php echo $event['event_time'] ?>
+                                                <?php
+                                                $date =  $event['event_date'];
+                                                $time = $event['event_time'];
+                                                $event_date = new DateTime("$date $time");
+                                                // Get the current date and time
+                                                $current_date = new DateTime();
+                                                // Calculate the time difference between the current date and time and the event date and time
+                                                $time_remaining = $event_date->diff($current_date);
+
+                                                // Get the remaining days and hours
+                                                $days_remaining = $time_remaining->d;
+                                                $hours_remaining = $time_remaining->h;
+                                                $minutes_remaining = $time_remaining->i;
+
+
+                                                // Output the time remaining
+                                                if($days_remaining > 0){
+                                                    echo "$days_remaining days, $hours_remaining hrs and $minutes_remaining mins to the event.";
+                                                }else if($hours_remaining > 0){
+                                                echo "$hours_remaining hrs and $minutes_remaining mins to the event.";
+
+                                                }else{
+                                                echo "$minutes_remaining mins to the event.";
+                                                    
+                                                }
+                                                ?>
                                             </td>
                                             <td class="text-center">
-                                                1000000
+                                                UGX
+                                                <?php
+                                                echo number_format(100000)
+                                                ?>
                                             </td>
                                             <td class="text-center">
                                                 <div class="input-group flex-nowrap">
@@ -334,7 +373,7 @@
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h1 class="modal-title fs-5" id="exampleModalLabel">Delete Customer</h1>
+                    <h1 class="modal-title fs-5" id="exampleModalLabel">Delete Event</h1>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <form action="" method="POST">

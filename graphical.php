@@ -1,3 +1,6 @@
+<?php
+session_start();
+?>
 <!doctype html>
 <html lang="en">
 
@@ -59,11 +62,11 @@
         $sql = "SELECT promoter.name, COUNT(events.event_id) AS num_events
         FROM promoter
         LEFT JOIN events ON promoter.id = events.promoter_id
-        GROUP BY promoter.name";
+        GROUP BY promoter.name ORDER BY num_events DESC";
         $results = $conn->query($sql);
         $xValues =  array();
         $yValues = array();
-       
+
 
         while ($data = $results->fetch_assoc()) {
             $xValues[] = $data['name'];
@@ -72,7 +75,13 @@
         $xValues_json = json_encode($xValues);
         $yValues_json = json_encode($yValues);
         ?>
-        var barColors = ["red", "purple", "blue", "orange", "brown", "purple", "lemon green", "cream"];
+        var barColors = ["#FF0000", "#00FF00", "#0000FF", "#FFFF00", "#00FFFF",
+            "#FF00FF", "#C0C0C0", "#808080", "#FFA500", "#800000",
+            "#FFC0CB", "#800080", "#FFFFF0", "#F0E68C", "#F5DEB3",
+            "#D2691E", "#FF7F50", "#6495ED", "#DC143C", "#00CED1",
+            "#000080", "#FFD700", "#008000", "#4B0082", "#ADD8E6",
+            "#FA8072", "#A0522D", "#FFF0F5", "#FF6347", "#00FF7F"
+        ];
 
         new Chart("myChart", {
             type: "bar",

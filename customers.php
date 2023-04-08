@@ -1,3 +1,9 @@
+<?php
+session_start();
+if(!isset($_SESSION['user'])){
+  header("location:login.php");
+}
+?>
 <!doctype html>
 <html lang="en">
 
@@ -51,6 +57,10 @@
     $sql = "UPDATE `customers` SET `name`='$name',`email`='$email',`contact`='$contact' WHERE id = '$id'";
     $results = $conn->query($sql);
     if ($results) {
+      $user =  $_SESSION['user']['id'];
+      $transaction_id = "#" . date('Ym') . time();
+      $sql = "INSERT INTO `log`(`transaction_id`, `transaction`, `user`) VALUES ('$transaction_id', 'Edited customer($name) successfully',  '$user')";
+      $conn->query($sql);
     }
   }
 
@@ -61,11 +71,10 @@
     $sql = "INSERT INTO `customers`(`name`, `email`, `contact`) VALUES ('$name', '$email', '$contact')";
     $results = $conn->query($sql);
     if ($results) {
-      $userName = "$contact";
-      $password = "";
-      $role = 2;
-      
-
+      $user =  $_SESSION['user']['id'];
+      $transaction_id = "#" . date('Ym') . time();
+      $sql = "INSERT INTO `log`(`transaction_id`, `transaction`, `user`) VALUES ('$transaction_id', 'Registered new customer called $name',  '$user')";
+      $conn->query($sql);
     }
   }
 
@@ -75,6 +84,10 @@
     $sql = "UPDATE `customers` SET `status`=0 WHERE id = $id";
     $results = $conn->query($sql);
     if ($results) {
+      $user =  $_SESSION['user']['id'];
+      $transaction_id = "#" . date('Ym') . time();
+      $sql = "INSERT INTO `log`(`transaction_id`, `transaction`, `user`) VALUES ('$transaction_id', 'Deleted customer successfully',  '$user')";
+      $conn->query($sql);
     }
   }
 
@@ -528,19 +541,6 @@
       <!-- END Side Content -->
     </aside>
     <!-- END Side Overlay -->
-
-    <!-- Sidebar -->
-    <!--
-        Sidebar Mini Mode - Display Helper classes
-
-        Adding 'smini-hide' class to an element will make it invisible (opacity: 0) when the sidebar is in mini mode
-        Adding 'smini-show' class to an element will make it visible (opacity: 1) when the sidebar is in mini mode
-          If you would like to disable the transition animation, make sure to also add the 'no-transition' class to your element
-
-        Adding 'smini-hidden' to an element will hide it when the sidebar is in mini mode
-        Adding 'smini-visible' to an element will show it (display: inline-block) only when the sidebar is in mini mode
-        Adding 'smini-visible-block' to an element will show it (display: block) only when the sidebar is in mini mode
-      -->
     <?php include "sidebar.php" ?>
     <!-- END Sidebar -->
 
@@ -599,7 +599,7 @@
                 if ($customers->num_rows > 0) {
                   $sn = 0;
                   foreach ($customers as $customer) :
-                  
+
                 ?>
                     <tr>
                       <td hidden><?php echo $customer['id']; ?></td>

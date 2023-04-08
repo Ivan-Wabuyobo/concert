@@ -1,3 +1,9 @@
+<?php
+session_start();
+
+if(!isset($_SESSION['user'])){
+    header("location:login.php");
+}?>
 <!doctype html>
 <html lang="en">
 
@@ -7,16 +13,14 @@
 
     <title>Events</title>
 
-    <meta name="description"
-        content="Dashmix - Bootstrap 5 Admin Template &amp; UI Framework created by pixelcave and published on Themeforest">
+    <meta name="description" content="Dashmix - Bootstrap 5 Admin Template &amp; UI Framework created by pixelcave and published on Themeforest">
     <meta name="author" content="pixelcave">
     <meta name="robots" content="noindex, nofollow">
 
     <!-- Open Graph Meta -->
     <meta property="og:title" content="Dashmix - Bootstrap 5 Admin Template &amp; UI Framework">
     <meta property="og:site_name" content="Dashmix">
-    <meta property="og:description"
-        content="Dashmix - Bootstrap 5 Admin Template &amp; UI Framework created by pixelcave and published on Themeforest">
+    <meta property="og:description" content="Dashmix - Bootstrap 5 Admin Template &amp; UI Framework created by pixelcave and published on Themeforest">
     <meta property="og:type" content="website">
     <meta property="og:url" content="">
     <meta property="og:image" content="">
@@ -59,7 +63,8 @@
         $name = $_POST['name'];
         $event = $_POST['event'];
         $price = $_POST['amount'];
-        $sql = "INSERT INTO `package`(`name`, `amount`, `event`) VALUES ('$name', '$price', '$event')";
+        $promoterId = $_SESSION['user']['user_id'];                                                                                                         
+        $sql = "INSERT INTO `package`(`name`, `amount`, `event`, `event_promoter`) VALUES ('$name', '$price', '$event', '$promoterId')";
         $results = $conn->query($sql);
         if ($results) {
             echo "it worked";
@@ -79,8 +84,7 @@
 
     ?>
 
-    <div id="page-container"
-        class="sidebar-o sidebar-dark enable-page-overlay side-scroll page-header-fixed main-content-narrow">
+    <div id="page-container" class="sidebar-o sidebar-dark enable-page-overlay side-scroll page-header-fixed main-content-narrow">
 
         <!-- Sidebar -->
         <!--
@@ -116,8 +120,7 @@
                                     <div class=" d-flex justify-content-between">
                                         <h3>Events' Packages and Pricing</h3>
                                         <span>
-                                            <button type="button" class="js-swal-confirm btn btn-success"
-                                                data-bs-toggle="modal" data-bs-target="#addCustomer">
+                                            <button type="button" class="js-swal-confirm btn btn-success" data-bs-toggle="modal" data-bs-target="#addCustomer">
                                                 <i class="fa fa-plus text-white me-1"></i> Add Package
                                             </button>
                                         </span>
@@ -127,48 +130,68 @@
                                     <th hidden></th>
                                     <th hidden></th>
                                     <th hidden></th>
-                                    <th>Package</th>
-                                    <th>Event</th>
-                                    <th>Amount</th>
-                                    <th>Date Added</th>
-                                    <th>Action</th>
+                                    <th class="text-center">Package</th>
+                                    <th class="text-center">Event</th>
+                                    <th class="text-center">Amount</th>
+                                    <th class="text-center">Date Added</th>
+                                    <th class="text-center">Action</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 <?php
+
+                                function time_ago($datetime)
+                                {
+                                    $timestamp = strtotime($datetime);
+                                    $difference = time() - $timestamp;
+
+                                    if ($difference < 60) {
+                                        return $difference . " sec ago";
+                                    } elseif ($difference < 3600) {
+                                        return round($difference / 60) . " min ago";
+                                    } elseif ($difference < 86400) {
+                                        return round($difference / 3600) . " hour ago";
+                                    } elseif ($difference < 31536000) {
+                                        return round($difference / 86400) . " day ago";
+                                    } else {
+                                        return round($difference / 31536000) . " year ago";
+                                    }
+                                }
+                                if($_SESSION['user']['role'] == '1'){
                                 $sql = "SELECT * FROM `package` JOIN events ON package.event = events.event_id";
+
+                                }else{
+                                    $promoterId = $_SESSION['user']['user_id'];                                    
+                                    $sql = "SELECT * FROM `package` JOIN events ON package.event = events.event_id WHERE  event_promoter = '$promoterId'";
+                                }
                                 $packages = $conn->query($sql);
                                 if ($packages->num_rows > 0) {
                                     foreach ($packages as $package) :
 
                                 ?>
-                                <tr>
-                                    <td hidden><?php echo $package['id']; ?></td>
-                                    <td hidden><?php echo $package['name']; ?></td>
-                                    <td hidden><?php echo $package['amount']; ?></td>
-                                    <td class="text-center">
-                                        <?php echo $package['name'] ?>
-                                    </td>
-                                    <td class="text-center">
-                                        <?php echo $package['event_name'] ?>
-                                    </td>
-                                    <td class="text-center">
-                                        <?php echo $package['amount']; ?>
-                                    </td>
-                                    <td class="text-center">
-                                        <?php echo $package['date']; ?>
-                                    </td>
-                                    <td class="text-center">
-                                        <div class="input-group flex-nowrap">
-                                            <button class="btn btn-info edit_btn" data-bs-toggle='modal'
-                                                data-bs-target='#editCustomer'><i
-                                                    class="fa-sharp fa-solid fa-pen-to-square"></i></button>
-                                            <button class="btn btn-danger btn delete_btn " data-bs-toggle='modal'
-                                                data-bs-target='#deleteCustomer'><i
-                                                    class="fa-sharp fa-solid fa-trash "></i></button>
-                                        </div>
-                                    </td>
-                                </tr>
+                                        <tr>
+                                            <td hidden><?php echo $package['id']; ?></td>
+                                            <td hidden><?php echo $package['name']; ?></td>
+                                            <td hidden> <?php echo $package['amount']; ?></td>
+                                            <td class="text-center">
+                                                <?php echo $package['name'] ?>
+                                            </td>
+                                            <td class="text-center">
+                                                <?php echo $package['event_name'] ?>
+                                            </td>
+                                            <td class="text-center">
+                                            UGX <?php echo number_format($package['amount']); ?>
+                                            </td>
+                                            <td class="text-center">
+                                                <?php echo time_ago($package['date']) ?>
+                                            </td>
+                                            <td class="text-center">
+                                                <div class="input-group flex-nowrap">
+                                                    <button class="btn btn-info edit_btn" data-bs-toggle='modal' data-bs-target='#editCustomer'><i class="fa-sharp fa-solid fa-pen-to-square"></i></button>
+                                                    <button class="btn btn-danger btn delete_btn " data-bs-toggle='modal' data-bs-target='#deleteCustomer'><i class="fa-sharp fa-solid fa-trash "></i></button>
+                                                </div>
+                                            </td>
+                                        </tr>
                                 <?php endforeach;
                                 } ?>
 
@@ -205,14 +228,15 @@
                         </div>
                         <div class="mb-4">
                             <div class="input-group input-group-lg">
-                                <select class="form-select" id="floatingSelect"
-                                    aria-label="Floating label select example" name="event">
+                                <select class="form-select" id="floatingSelect" aria-label="Floating label select example" name="event">
+                                    <option selected>Select Event</option>
                                     <?php
-                                    $sql = "SELECT * FROM `events` WHERE events.status='1'";
+                                    $promoterId = $_SESSION['user']['user_id'];
+                                    $sql = "SELECT * FROM `events` WHERE events.status='1' AND events.promoter_id = '$promoterId'";
                                     $results = $conn->query($sql);
                                     while ($events = $results->fetch_assoc()) { ?>
-                                    <option value="<?php echo $events['id']; ?>"><?php echo $events['event_name']; ?>
-                                    </option>
+                                        <option value="<?php echo $events['event_id']; ?>"><?php echo $events['event_name']; ?>
+                                        </option>
                                     <?php } ?>
                                 </select>
 
@@ -274,7 +298,7 @@
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h1 class="modal-title fs-5" id="exampleModalLabel">Delete Customer</h1>
+                    <h1 class="modal-title fs-5" id="exampleModalLabel">Delete Package</h1>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <form action="" method="POST">
@@ -283,7 +307,7 @@
                     </div>
                     <i class="fa-duotone fa-brake-warning text-danger"></i>
                     <h3 class="container">
-                        Are you sure, you want to delete this Event
+                        Are you sure, you want to delete this package
                     </h3>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
@@ -317,23 +341,23 @@
     <script src="assets/js/pages/be_tables_datatables.min.js"></script>
     <script src="assets/js/pages/be_comp_dialogs.min.js"></script>
     <script>
-    $(document).ready(function() {
-        $('.delete_btn').click(function() {
-            var id = $(this).closest("tr").find('td:nth-child(1)').text().trim();
-            $('#id2').val(id);
-        });
+        $(document).ready(function() {
+            $('.delete_btn').click(function() {
+                var id = $(this).closest("tr").find('td:nth-child(1)').text().trim();
+                $('#id2').val(id);
+            });
 
-        $('.edit_btn').click(function() {
-            var id = $(this).closest("tr").find('td:nth-child(1)').text().trim();
-            $('#id').val(id);
-            var name = $(this).closest("tr").find('td:nth-child(2)').text().trim();
-            $('#name').val(name);
-            var amount = $(this).closest("tr").find('td:nth-child(3)').text().trim();
-            $('#amount').val(amount);
-        
-        });
+            $('.edit_btn').click(function() {
+                var id = $(this).closest("tr").find('td:nth-child(1)').text().trim();
+                $('#id').val(id);
+                var name = $(this).closest("tr").find('td:nth-child(2)').text().trim();
+                $('#name').val(name);
+                var amount = $(this).closest("tr").find('td:nth-child(3)').text().trim();
+                $('#amount').val(amount);
 
-    });
+            });
+
+        });
     </script>
 </body>
 
