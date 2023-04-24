@@ -66,25 +66,31 @@ if (!isset($_SESSION['user'])) {
         $name = $_POST['name'];
         $time = $_POST['time'];
         $date = $_POST['date'];
-        if($_SESSION['user']['role'] == '1'){
+        $file = $_FILES['file'];
+        $targetDir = "banners/";
+        $targetFile = $targetDir.time().basename($file["name"]);
+        if ($_SESSION['user']['role'] == '1') {
             $organiser = $_POST['organiser'];
-        }else{
+        } else {
             $organiser = $_SESSION['user']['user_id'];
         }
         $venue = $_POST['venue'];
         $description = $_POST['description'];
-
-        $sql = "INSERT INTO `events`(`event_name`, `event_date`, `event_time`, `promoter_id`, `venue`, `description`, `flier`)
-     VALUES ('$name', '$date', '$time', '$organiser', '$venue', '$description', 'flier')";
-        $results = $conn->query($sql);
-        if ($results) {
-            $user =  $_SESSION['user']['id'];
-            $transaction_id = "#" . date('Ym') . time();
-            $sql = "INSERT INTO `log`(`transaction_id`, `transaction`, `user`) VALUES ('$transaction_id', 'Added a new event called $name',  '$user')";
-            $conn->query($sql);
-        } else {
-            echo $conn->error;
+        if(move_uploaded_file($file["tmp_name"], $targetFile)) {
+            $sql = "INSERT INTO `events`(`event_name`, `event_date`, `event_time`, `promoter_id`, `venue`, `description`, `flier`)
+            VALUES ('$name', '$date', '$time', '$organiser', '$venue', '$description', '$targetFile')";
+               $results = $conn->query($sql);
+               if ($results) {
+                   $user =  $_SESSION['user']['id'];
+                   $transaction_id = "#" . date('Ym') . time();
+                   $sql = "INSERT INTO `log`(`transaction_id`, `transaction`, `user`) VALUES ('$transaction_id', 'Added a new event called $name',  '$user')";
+                   $conn->query($sql);
+               } else {
+                   echo $conn->error;
+               }
         }
+
+     
     }
 
 
@@ -178,14 +184,14 @@ if (!isset($_SESSION['user'])) {
                                             <td class="text-center">
                                                 Date:
                                                 <?php echo $event['event_date'] ?></br>
-                                                Time: <?php 
-                                                $time24 = $event['event_time'];
-                                                $time = new DateTime($time24);
-                                                echo $time->format('h:i a');
-                                                ?>
+                                                Time: <?php
+                                                        $time24 = $event['event_time'];
+                                                        $time = new DateTime($time24);
+                                                        echo $time->format('h:i a');
+                                                        ?>
                                             </td>
                                             <td class="text-center">
-                                                <?php echo number_format(100000)?>
+                                                <?php echo number_format(100000) ?>
                                             </td>
                                             <td class="text-center">
                                                 <div class="input-group flex-nowrap">
@@ -222,7 +228,7 @@ if (!isset($_SESSION['user'])) {
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                    <form class="js-validation-signin" action="" method="POST">
+                    <form class="js-validation-signin" action="" method="POST" enctype="multipart/form-data">
                         <div class="mb-4">
                             <div class="input-group input-group-lg">
                                 <input type="text" class="form-control" name="name" placeholder="Event name">
@@ -231,24 +237,33 @@ if (!isset($_SESSION['user'])) {
                                 </span>
                             </div>
                         </div>
-                        <?php if($_SESSION['user']['role'] == '1'){?>
                         <div class="mb-4">
                             <div class="input-group input-group-lg">
-                                <select class="form-select" id="floatingSelect" aria-label="Floating label select example" name="organiser">
-                                    <?php
-                                    $sql = "SELECT * FROM `promoter` WHERE promoter.status='1' AND promoter.enrolled='1'";
-                                    $results = $conn->query($sql);
-                                    while ($promoters = $results->fetch_assoc()) { ?>
-                                        <option value="<?php echo $promoters['id']; ?>"><?php echo $promoters['name']; ?>
-                                        </option>
-                                    <?php } ?>
-                                </select>
+                                <label for="">Add Event Flier</label>
+                                <input type="file" class="form-control" name="file" placeholder="Event banner">
                                 <span class="input-group-text">
-                                    <i class="fa-regular fa-user"></i>
+                                    <i class="fa-regular fa-plus"></i>
                                 </span>
                             </div>
                         </div>
-                        <?php }?>
+                        <?php if ($_SESSION['user']['role'] == '1') { ?>
+                            <div class="mb-4">
+                                <div class="input-group input-group-lg">
+                                    <select class="form-select" id="floatingSelect" aria-label="Floating label select example" name="organiser">
+                                        <?php
+                                        $sql = "SELECT * FROM `promoter` WHERE promoter.status='1' AND promoter.enrolled='1'";
+                                        $results = $conn->query($sql);
+                                        while ($promoters = $results->fetch_assoc()) { ?>
+                                            <option value="<?php echo $promoters['id']; ?>"><?php echo $promoters['name']; ?>
+                                            </option>
+                                        <?php } ?>
+                                    </select>
+                                    <span class="input-group-text">
+                                        <i class="fa-regular fa-user"></i>
+                                    </span>
+                                </div>
+                            </div>
+                        <?php } ?>
                         <div class="mb-4">
                             <label for="floatingSelect">Event Date</label>
 

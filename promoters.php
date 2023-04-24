@@ -1,9 +1,9 @@
 <?php
 session_start();
 
-if(!isset($_SESSION['user'])){
-    header("location:login.php");
-}?>
+if (!isset($_SESSION['user'])) {
+  header("location:login.php");
+} ?>
 <!doctype html>
 <html lang="en">
 
@@ -58,6 +58,14 @@ if(!isset($_SESSION['user'])){
     $sql = "INSERT INTO `promoter`(`name`, `email`, `contact`, `enrolled`, `address`) VALUES ('$name', '$email', '$contact', '1', '$address')";
     $results = $conn->query($sql);
     if ($results) {
+
+      //Add a user
+      $password = time();
+      $userId = mysqli_insert_id($conn);
+      $sql = "INSERT INTO `users`(`username`, `password`, `role`, `user_id`) VALUES ('$name', '$password', '2', '$userId' )";
+      $conn->query($sql);
+      
+      //insert into logs
       $user =  $_SESSION['user']['id'];
       $transaction_id = "#" . date('Ym') . time();
       $sql = "INSERT INTO `log`(`transaction_id`, `transaction`, `user`) VALUES ('$transaction_id', 'Added new promoter called $name',  '$user')";
