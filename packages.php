@@ -53,7 +53,7 @@ if(!isset($_SESSION['user'])){
         $id = $_POST['id'];
         $name = $_POST['name'];
         $price = $_POST['amount'];
-        $sql = "UPDATE `package` SET `name`='$name',`amount`='$price' WHERE package.id = '$id'";
+        $sql = "UPDATE `package` SET `package_name`='$name',`amount`='$price' WHERE package.id = '$id'";
         $results = $conn->query($sql);
         if ($results) {
         }
@@ -64,7 +64,7 @@ if(!isset($_SESSION['user'])){
         $event = $_POST['event'];
         $price = $_POST['amount'];
         $promoterId = $_SESSION['user']['user_id'];                                                                                                         
-        $sql = "INSERT INTO `package`(`name`, `amount`, `event`, `event_promoter`) VALUES ('$name', '$price', '$event', '$promoterId')";
+        $sql = "INSERT INTO `package`(`package_name`, `amount`, `event`, `event_promoter`) VALUES ('$name', '$price', '$event', '$promoterId')";
         $results = $conn->query($sql);
         if ($results) {
             echo "it worked";
@@ -171,10 +171,10 @@ if(!isset($_SESSION['user'])){
                                 ?>
                                         <tr>
                                             <td hidden><?php echo $package['id']; ?></td>
-                                            <td hidden><?php echo $package['name']; ?></td>
+                                            <td hidden><?php echo $package['package_name']; ?></td>
                                             <td hidden> <?php echo $package['amount']; ?></td>
                                             <td class="text-center">
-                                                <?php echo $package['name'] ?>
+                                                <?php echo $package['package_name'] ?>
                                             </td>
                                             <td class="text-center">
                                                 <?php echo $package['event_name'] ?>

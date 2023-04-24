@@ -54,7 +54,7 @@ if(!isset($_SESSION['user'])){
     $name = $_POST['name'];
     $contact = $_POST['contact'];
     $email = $_POST['email'];
-    $sql = "UPDATE `customers` SET `name`='$name',`email`='$email',`contact`='$contact' WHERE id = '$id'";
+    $sql = "UPDATE `customers` SET `customer_name`='$name',`email`='$email',`contact`='$contact' WHERE id = '$id'";
     $results = $conn->query($sql);
     if ($results) {
       $user =  $_SESSION['user']['id'];
@@ -68,13 +68,21 @@ if(!isset($_SESSION['user'])){
     $name = $_POST['name'];
     $contact = $_POST['contact'];
     $email = $_POST['email'];
-    $sql = "INSERT INTO `customers`(`name`, `email`, `contact`) VALUES ('$name', '$email', '$contact')";
+    $sql = "INSERT INTO `customers`(`customer_name`, `email`, `contact`) VALUES ('$name', '$email', '$contact')";
     $results = $conn->query($sql);
     if ($results) {
+      //Add a user
+      $password = time();
+      $userId = mysqli_insert_id($conn);
+      $sql = "INSERT INTO `users`(`username`, `password`, `role`, `user_id`) VALUES ('$name', '$password', '3', '$userId' )";
+      $conn->query($sql);
+
       $user =  $_SESSION['user']['id'];
       $transaction_id = "#" . date('Ym') . time();
       $sql = "INSERT INTO `log`(`transaction_id`, `transaction`, `user`) VALUES ('$transaction_id', 'Registered new customer called $name',  '$user')";
       $conn->query($sql);
+
+       
     }
   }
 
@@ -584,42 +592,62 @@ if(!isset($_SESSION['user'])){
                   <th hidden></th>
                   <th hidden></th>
                   <th hidden></th>
-                  <th>Name</th>
-                  <th>Email</th>
-                  <th>Contact</th>
-                  <th>Number of Bookings</th>
-                  <th>Registered</th>
-                  <th>Action</th>
+                  <th class="text-center">Name</th>
+                  <th class="text-center">Email</th>
+                  <th class="text-center">Contact</th>
+                  <th class="text-center">Number of Bookings</th>
+                  <th class="text-center">Total Payments</th>
+                  <th class="text-center">Registered</th>
+                  <th class="text-center">Action</th>
                 </tr>
               </thead>
               <tbody>
                 <?php
-                $sql = "SELECT `id`, `name`, `email`, `contact`, `created`, `status` FROM `customers` WHERE status = 1  ORDER BY id ASC";
+                function time_ago($datetime) {
+                  $timestamp = strtotime($datetime);
+                  $difference = time() - $timestamp;
+               
+                  if ($difference < 60) {
+                     return $difference . " secs ago";
+                  } elseif ($difference < 3600) {
+                     return round($difference/60) . " mins ago";
+                  } elseif ($difference < 86400) {
+                     return round($difference/3600) . " hours ago";
+                  } elseif ($difference < 31536000) {
+                     return round($difference/86400) . " days ago";
+                  } else {
+                     return round($difference/31536000) . " years ago";
+                  }
+               }
+                $sql = "SELECT `id`, `name`, `email`, `contact`, `created`, `status`, (SELECT COUNT(bookings.id) FROM bookings WHERE bookings.customer_id = customers.id) as bookings, (SELECT SUM(bookings.amount_paid) FROM bookings WHERE bookings.customer_id = customers.id) as payments FROM `customers`  ORDER BY customers.id DESC;";
                 $customers = $conn->query($sql);
                 if ($customers->num_rows > 0) {
                   $sn = 0;
-                  foreach ($customers as $customer) :
+                  while ($customer =  $customers->fetch_assoc()) {
 
                 ?>
                     <tr>
                       <td hidden><?php echo $customer['id']; ?></td>
-                      <td hidden><?php echo $customer['name']; ?></td>
+                      <td hidden><?php echo $customer['customer_name']; ?></td>
                       <td hidden><?php echo $customer['contact']; ?></td>
                       <td hidden><?php echo $customer['email']; ?></td>
-                      <td class="fw-semibold">
-                        <?php echo $customer['name'] ?>
+                      <td class="fw-semibold text-center">
+                        <?php echo $customer['customer_name'] ?>
                       </td>
                       <td class="text-center">
                         <?php echo $customer['email'] ?>
                       </td>
                       <td class="text-center">
-                        <span class=""><?php echo $customer['contact'] ?></span>
+                        <?php echo $customer['contact'] ?>
                       </td>
-                      <td>
-                        <em class="text-center">5</em>
+                      <td class="text-center">
+                       <?php echo $customer['bookings'] ?>
                       </td>
-                      <td>
-                        <em class="text-center">5 days ago</em>
+                      <td class="text-center">UGX
+                       <?php if($customer['payments']){echo number_format($customer['payments']) ;}else{ echo "0"; }?>
+                      </td>
+                      <td class="text-center"> 
+                        <?php echo time_ago($customer['created']) ?>
                       </td>
                       <td>
                         <div class="input-group flex-nowrap">
@@ -628,7 +656,7 @@ if(!isset($_SESSION['user'])){
                         </div>
                       </td>
                     </tr>
-                <?php endforeach;
+                <?php }
                 } ?>
 
               </tbody>
