@@ -61,6 +61,13 @@ if (!isset($_SESSION['user'])) {
             $conn->query($sql);
         }
     }
+    if (isset($_POST['delete_customer'])) {
+        $id = $_POST['id'];
+        $sql = "DELETE FROM `events` WHERE event_id = '$id'";
+        $results = $conn->query($sql);
+        if ($results) {
+        }
+      }
 
     if (isset($_POST['add_event'])) {
         $name = $_POST['name'];

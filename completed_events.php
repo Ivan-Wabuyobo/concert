@@ -74,7 +74,7 @@ session_start();
 
   if (isset($_POST['delete_customer'])) {
     $id = $_POST['id'];
-    $sql = "UPDATE `customers` SET `status`=0 WHERE id = $id";
+    $sql = "DELETE FROM `events` WHERE event_id = '$id'";
     $results = $conn->query($sql);
     if ($results) {
     }
