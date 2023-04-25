@@ -178,7 +178,12 @@ if (!isset($_SESSION['user'])) {
                                                 <?php echo $event['name'] ?>
                                             </td>
                                             <td class="text-center">
-                                                5
+                                            <?php 
+                                                $event_ids = $event['event_id'];
+                                                $query = "SELECT COUNT(book_id) AS bookings FROM `bookings` WHERE event_id = '$event_ids'";
+                                                echo $conn->query($query)->fetch_assoc()['bookings'];
+                                                
+                                                ?>
                                             </td>
                                             <td class="text-center">
                                                 vip 500000

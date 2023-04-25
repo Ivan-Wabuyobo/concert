@@ -137,7 +137,7 @@ session_start();
                   <th>Bookings</th>
                   <th>Packages</th>
                   <th>Venue</th>
-  
+
                   <th>Completed</th>
                   <th>Amount collected</th>
                   <th>Action</th>
@@ -145,11 +145,12 @@ session_start();
               </thead>
               <tbody>
                 <?php
-                function eventTimeAgo($event_date) {
+                function eventTimeAgo($event_date)
+                {
                   $event = new DateTime($event_date);
                   $now = new DateTime();
                   $diff = $now->diff($event);
-                
+
                   if ($diff->y > 0) {
                     return $diff->y . " years ago";
                   } elseif ($diff->m > 0) {
@@ -164,19 +165,18 @@ session_start();
                     return "just now";
                   }
                 }
-                
+
                 $date = date('Y-m-d');
                 $time = date('H:i:s');
                 $id = $_SESSION['user']['user_id'];
-                if($_SESSION['user']['role'] == 1){
+                if ($_SESSION['user']['role'] == 1) {
                   $sql = "SELECT * FROM `events` JOIN promoter ON events.promoter_id = promoter.id WHERE events.event_date < DATE(NOW()) OR ((events.event_date = DATE(NOW()) AND events.event_time <= TIME(NOW())))";
-
-                }else{
+                } else {
                   $sql = "SELECT * FROM `events` JOIN promoter ON events.promoter_id = promoter.id  WHERE events.event_date < DATE(NOW()) OR ((events.event_date = DATE(NOW()) AND events.event_time <= TIME(NOW()))) AND events.promoter_id = '$id'";
                 }
                 $events = $conn->query($sql);
                 if ($events->num_rows > 0) {
-                      foreach ($events as $event) :
+                  foreach ($events as $event) :
                 ?>
                     <tr>
                       <td hidden><?php echo $event['event_id']; ?></td>
@@ -193,7 +193,12 @@ session_start();
                         <?php echo $event['name'] ?>
                       </td>
                       <td class="text-center">
-                        5
+                        <?php
+                        $event_ids = $event['event_id'];
+                        $query = "SELECT COUNT(book_id) AS bookings FROM `bookings` WHERE event_id = '$event_ids'";
+                        echo $conn->query($query)->fetch_assoc()['bookings'];
+
+                        ?>
                       </td>
                       <td class="text-center">
                         vip 500000
@@ -203,14 +208,14 @@ session_start();
                       </td>
 
                       <td class="text-center">
-                        
-                        <?php 
+
+                        <?php
                         $edate = $event['event_date'];
                         $etime = $event['event_time'];
                         $date = new DateTime("$edate $etime");
                         $result = $date->format('Y-m-d H:i:s');
                         echo eventTimeAgo($result) ?>
-                        
+
                       </td>
                       <td class="text-center">
                         1000000
