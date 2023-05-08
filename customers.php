@@ -619,7 +619,7 @@ if(!isset($_SESSION['user'])){
                      return round($difference/31536000) . " years ago";
                   }
                }
-                $sql = "SELECT `id`, `name`, `email`, `contact`, `created`, `status`, (SELECT COUNT(bookings.id) FROM bookings WHERE bookings.customer_id = customers.id) as bookings, (SELECT SUM(bookings.amount_paid) FROM bookings WHERE bookings.customer_id = customers.id) as payments FROM `customers`  ORDER BY customers.id DESC;";
+                $sql = "SELECT `id`, `customer_name`, `email`, `contact`, `created`, `status`, (SELECT COUNT(bookings.book_id) FROM bookings WHERE bookings.customer_id = customers.id) as bookings, (SELECT SUM(bookings.amount_paid) FROM bookings WHERE bookings.customer_id = customers.id) as payments FROM `customers`  ORDER BY customers.id DESC";
                 $customers = $conn->query($sql);
                 if ($customers->num_rows > 0) {
                   $sn = 0;
@@ -725,7 +725,7 @@ if(!isset($_SESSION['user'])){
     <div class="modal-dialog">
       <div class="modal-content">
         <div class="modal-header">
-          <h1 class="modal-title fs-5" id="exampleModalLabel">Add customer</h1>
+          <h1 class="modal-title fs-5" id="exampleModalLabel">Edit customer Details</h1>
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
         <div class="modal-body">

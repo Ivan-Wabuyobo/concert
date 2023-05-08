@@ -139,8 +139,7 @@ if (!isset($_SESSION['user'])) {
                                     <th hidden></th>
                                     <th>Event</th>
                                     <th>Organiser</th>
-                                    <th>Bookings</th>
-                                    <th>Packages</th>
+                                    
                                     <th>Venue</th>
 
                                     <th>Time to the Event</th>
@@ -154,9 +153,9 @@ if (!isset($_SESSION['user'])) {
                                 $time = date('H:i:s');
                                 $id = $_SESSION['user']['user_id'];
                                 if ($_SESSION['user']['role'] == 1) {
-                                    $sql = "SELECT * FROM `events` JOIN promoter ON events.promoter_id = promoter.id WHERE events.event_date > '$date'";
+                                    $sql = "SELECT *, (SELECT SUM(bookings.amount_paid) FROM bookings WHERE bookings.event_id = events.event_id) As amountCollected FROM `events` JOIN promoter ON events.promoter_id = promoter.id WHERE events.event_date > '$date'";
                                 } else {
-                                    $sql = "SELECT * FROM `events` JOIN promoter ON events.promoter_id = promoter.id WHERE events.event_date > '$date' AND events.promoter_id = '$id'";
+                                    $sql = "SELECT *, (SELECT SUM(bookings.amount_paid) FROM bookings WHERE bookings.event_id = events.event_id) As amountCollected FROM `events` JOIN promoter ON events.promoter_id = promoter.id WHERE events.event_date > '$date' AND events.promoter_id = '$id'";
                                 }
                                 $events = $conn->query($sql);
                                 if ($events->num_rows > 0) {
@@ -177,12 +176,7 @@ if (!isset($_SESSION['user'])) {
                                             <td class="text-center">
                                                 <?php echo $event['name'] ?>
                                             </td>
-                                            <td class="text-center">
-                                                5
-                                            </td>
-                                            <td class="text-center">
-                                                vip 500000
-                                            </td>
+                                           
                                             <td class="text-center">
                                                 <?php echo $event['venue'] ?>
                                             </td>
@@ -218,7 +212,7 @@ if (!isset($_SESSION['user'])) {
                                             <td class="text-center">
                                                 UGX
                                                 <?php
-                                                echo number_format(100000)
+                                                echo number_format($event['amountCollected'])
                                                 ?>
                                             </td>
                                             <td class="text-center">

@@ -16,7 +16,7 @@ include 'dbconnect.php';
 <body>
     <?php
     if(isset($_POST['chat'])){
-        $event = $_POST['eventId'];
+        $event = $_POST['event'];
         $user = $_SESSION['user']['id'];
         $message = $_POST['message'];
         $sql = "INSERT INTO `comments`(`comment`, `user`, `event`) VALUES ('$message', '$user', '$event')";
@@ -53,6 +53,7 @@ include 'dbconnect.php';
                         <button class="btn btn-outline-warning mb-4" type="submit" name="chatroom">Join</button>
                     </form>
                 </div>
+                <?php if(isset($_POST['chatroom']) || isset($_POST['chat'])){?>
                 <div class="row">
                     <div class="col-xl-12">
                         <!-- Chat #2 -->
@@ -75,12 +76,12 @@ include 'dbconnect.php';
 
                             <!-- Chat #2 Messages -->
                             <?php
-                            if (isset($_POST['chatroom'])) {
+                            if (isset($_POST['chatroom']) || isset($_POST['event'])) {
                                 $chatroom = $_POST['event'];
                                 $sql = "SELECT * FROM `comments` JOIN users ON comments.user = users.id WHERE event = '$chatroom'";
                                 $myChats = $conn->query($sql);
                             }
-
+                            
                             ?>
                             <?php
                             function time_ago($datetime)
@@ -130,7 +131,7 @@ include 'dbconnect.php';
                             <!-- Chat #2 Input -->
                             <div class="js-chat-form block-content p-2 bg-body-dark">
                                 <form action="" method="POST">
-                                    <input type="hidden" name="eventId" value="<?php echo $_POST['event']?>">
+                                    <input type="hidden" name="event" value="<?php echo $_POST['event']?>">
                                     <input type="text" class="js-chat-input form-control form-control-alt"  placeholder="Type a message.." name="message">
                                     <button type="submit" class="btn btn-success text-white fw-bold mt-2" name="chat">
                                     <i class="fa-solid fa-paper-plane"></i>
@@ -143,6 +144,7 @@ include 'dbconnect.php';
                         <!-- END Chat #2 -->
                     </div>
                 </div>
+                <?php } ?>
             </div>
 
         </main>

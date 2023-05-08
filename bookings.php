@@ -168,11 +168,11 @@ include "dbconnect.php";
                     </td>
                     <td class="text-center">
                     <?php
-                  echo $user['amount_paid'];?>
+                  echo number_format($user['amount_paid']);?>
                     </td>
                     <td class="text-center">
                     <?php
-                  echo $user['balance'];?>
+                  echo number_format($user['balance']);?>
                     </td>
                     <td class="text-center">
                     <?php

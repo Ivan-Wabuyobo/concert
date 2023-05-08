@@ -110,7 +110,7 @@ include 'dbconnect.php';
                                     <p class="fs-sm fw-medium text-muted mt-1">
                                         <?php echo $events['description'] ?>
                                     </p>
-                                    <button onclick="getId(<?php echo $events['event_id'] ?>)" class="btn btn-warning text-white" data-bs-toggle="modal" data-bs-target="#book"><i class="fa-solid fa-paper-plane"></i> Book</button>
+                                    <button onclick="getId(<?php echo $events['event_id'] ?>); populatePackage(<?php echo $events['event_id'] ?>); " class="btn btn-warning text-white" data-bs-toggle="modal" data-bs-target="#book"><i class="fa-solid fa-paper-plane"></i> Book</button>
                                 </div>
                                 <div class="block-content block-content-full bg-body-light">
                                     <div class="d-flex justify-content-between">
@@ -193,16 +193,8 @@ include 'dbconnect.php';
                         <div class="modal-body">
                             <form action="" method="post">
                                 <input type="hidden" id="eventId" name="event">
-                                <select class="form-select mb-2" aria-label="Default select example" name="package">
+                                <select class="form-select mb-2" aria-label="Default select example" name="package" id="package">
                                     <option selected>Choose a package</option>
-
-                                    <?php
-                                    $query = "SELECT * FROM `package`";
-                                    $resul = $conn->query($query);
-                                    while ($package = $resul->fetch_assoc()) {
-                                    ?>
-                                        <option value="<?php echo $package['id']?><?php echo ","?><?php echo $package['amount'] ?>"><?php echo $package['package_name'] ?>--at <?php echo $package['amount'] ?></option>
-                                    <?php } ?>
                                 </select>
                                 <div class="mb-2">
                                     <input type="text" class="form-control" placeholder="Enter Amount" name="amount">
@@ -255,6 +247,28 @@ include 'dbconnect.php';
 
         }
     </script>
+
+<script>                
+            function populatePackage(id) {
+               
+                // make an AJAX request to fetch the clans for the selected tribe
+                const xhr = new XMLHttpRequest();
+                xhr.open('GET', 'getPackages.php?event=' + id, true);
+                xhr.send();
+                xhr.onreadystatechange = function() {
+                    if (this.readyState === 4 && this.status === 200) {
+                    // parse the response JSON and populate the clans select element with the options
+                    const packages = JSON.parse(this.responseText);
+                    const packageSelect = document.getElementById('package');
+                    packageSelect.innerHTML = '<option value="">Select a package</option>';
+                    packages.forEach((package)=> {
+                        packageSelect.innerHTML += '<option value="' + package.id + '">' + package.package_name + package.amount + '</option>';
+                    });
+                    }
+                };
+                
+                }
+</script>
 </body>
 
 </html>

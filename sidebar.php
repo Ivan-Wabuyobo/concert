@@ -138,6 +138,12 @@
               <span class="nav-main-link-name">Promoter performance</span>
             </a>
           </li>
+          <li class="nav-main-item">
+            <a class="nav-main-link " aria-haspopup="true" aria-expanded="false" href="finance.php">
+              <i class="nav-main-link-icon fa fa-chart-line text-warning"></i>
+              <span class="nav-main-link-name">Financial Analytics</span>
+            </a>
+          </li>
         <?php } ?>
       </ul>
     </div>

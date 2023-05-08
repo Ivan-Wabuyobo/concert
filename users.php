@@ -182,10 +182,8 @@ include "dbconnect.php";
                       <?php } else{?>
                         <button class="btn btn-success btn activate_btn " data-bs-toggle='modal' data-bs-target='#activate'><i class="fa-sharp fa-solid fa-check d-block"> </i>Activate</button>
                         <?php }?>
-                      <button class="btn btn-warning send_btn" data-bs-toggle='modal' data-bs-target='#change'><i class="fa-solid fa-paper-plane d-block text-white"></i>Send sms</button>
-
+                      <button class="btn btn-warning send_btn" data-bs-toggle='modal' data-bs-target=''><i class="fa-solid fa-paper-plane d-block text-white"></i>Send sms</button>
                       </div>
-
                     </td>
                   </tr>
                 <?php } ?>

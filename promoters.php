@@ -49,7 +49,7 @@ if (!isset($_SESSION['user'])) {
 <body>
   <?php
   include "dbconnect.php";
-  if (isset($_POST['add_anpromoter'])) {
+  if (isset($_POST['add_promoter'])) {
     $name = $_POST['name'];
     $contact = $_POST['contact'];
     $email = $_POST['email'];
@@ -136,19 +136,18 @@ if (!isset($_SESSION['user'])) {
                   <th hidden></th>
                   <th hidden></th>
 
-                  <th>Name</th>
-                  <th>Contact</th>
-                  <th>Email</th>
-                  <th>Address</th>
-                  <th>Number of Events</th>
-                  <th>Enrollement Status</th>
-                  <th>Action</th>
+                  <th class="text-center">Name</th>
+                  <th class="text-center">Contact</th>
+                  <th class="text-center">Email</th>
+                  <th class="text-center">Address</th>
+                  <th class="text-center">Events Organised</th>
+                  <th class="text-center">Action</th>
 
                 </tr>
               </thead>
               <tbody>
                 <?php
-                $sql = "SELECT * FROM `promoter` WHERE status=1";
+                $sql = "SELECT *, (SELECT COUNT(events.event_id) FROM events WHERE events.promoter_id = promoter.id) AS events FROM `promoter` WHERE status=1";
                 $promoters = $conn->query($sql);
                 while ($promoter = $promoters->fetch_assoc()) {
                 ?>
@@ -169,13 +168,9 @@ if (!isset($_SESSION['user'])) {
                       <?php echo $promoter['address'] ?>
                     </td>
                     <td class="text-center">
-                      2000
+                      <?php echo $promoter['events']?>
                     </td>
-                    <td>
-                      <button class="btn btn-switch" data-bs-toggle="button" aria-pressed="false" autocomplete="off">
-                        Toggle button
-                      </button>
-                    </td>
+                   
                     <td>
                       <div class="input-group flex-nowrap">
                         <button class="btn btn-info edit_btn" data-bs-toggle='modal' data-bs-target='#editCustomer'><i class="fa-sharp fa-solid fa-pen-to-square"></i></button>
