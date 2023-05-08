@@ -231,8 +231,13 @@ if(!isset($_SESSION['user'])){
                                 <select class="form-select" id="floatingSelect" aria-label="Floating label select example" name="event">
                                     <option selected>Select Event</option>
                                     <?php
+                                    if($_SESSION['user']['role'] != 1){
                                     $promoterId = $_SESSION['user']['user_id'];
-                                    $sql = "SELECT * FROM `events` WHERE events.status='1' AND events.promoter_id = '$promoterId'";
+                                    $sql = "SELECT * FROM `events` WHERE  events.promoter_id = '$promoterId'";
+                                    }else{
+                                    $sql = "SELECT * FROM `events`";
+                                    }
+                                    
                                     $results = $conn->query($sql);
                                     while ($events = $results->fetch_assoc()) { ?>
                                         <option value="<?php echo $events['event_id']; ?>"><?php echo $events['event_name']; ?>
