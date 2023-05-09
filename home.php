@@ -46,7 +46,33 @@ include 'dbconnect.php';
         $sql = "INSERT INTO `bookings`(`event_id`, `package_id`, `organiser_id`, `customer_id`, `amount`, `amount_paid`, `balance`, `ticket_number`)
                      VALUES ('$event', '$package', '$organiser', '$user', '$packageAmount', '$amount', '$balance', '$ticket')";
         
-        $conn->query($sql);
+        $results = $conn->query($sql);
+        $role = $_SESSION['user']['role'];
+        $userId = $_SESSION['user']['user_id'];
+        $username = $_SESSION['user']['username'];
+
+        if($results){
+            if($role == 3){
+              $sql = "SELECT * FROM `customers` WHERE customers.id = '$userId'";
+            }else{
+              $sql = "SELECT * FROM `promoter` WHERE promoter.id = '$userId'";
+            }
+             
+              $contact = $conn->query($sql)->fetch_assoc()['contact'];
+              $phone = substr($contact, -9);
+              $reciever= "256".$phone;
+              $message = "Dear $username:\nYour event was successfully booked  and this is your ticket number $ticket\nConcert Mix 2023 for details call 0772458553";
+              $data = 'api_id=api34770800361&api_password=nugsoft@2020&phonenumber='.$reciever.'&sms_type=P&sender_id=bulksms&from=nugsoft&encoding=T&textmessage='.rawurlencode($message);
+              $ch = curl_init('http://apidocs.speedamobile.com/api/SendSMS?'.$data);
+              curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+              $response = curl_exec($ch);
+              echo "===================================";
+              echo $response;
+              echo "===================================";
+    
+              curl_close($ch);     
+          
+           }
     }
     ?>
     <div id="page-container" class="sidebar-o sidebar-dark enable-page-overlay side-scroll page-header-fixed main-content-narrow">
@@ -262,7 +288,7 @@ include 'dbconnect.php';
                     const packageSelect = document.getElementById('package');
                     packageSelect.innerHTML = '<option value="">Select a package</option>';
                     packages.forEach((package)=> {
-                        packageSelect.innerHTML += '<option value="' + package.id + '">' + package.package_name + package.amount + '</option>';
+                        packageSelect.innerHTML += '<option value="' + package.id + ',' + package.amount  + '">' + package.package_name + package.amount + '</option>';
                     });
                     }
                 };

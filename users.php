@@ -99,7 +99,6 @@ include "dbconnect.php";
         <!-- Dynamic Table Full -->
         <div class="block block-rounded">
           <div class="block-header block-header-default">
-
           </div>
           <div class="block-content block-content-full">
             <!-- DataTables init on table by adding .js-dataTable-full class, functionality is initialized in js/pages/be_tables_datatables.min.js which was auto compiled from _js/pages/be_tables_datatables.js -->
@@ -182,8 +181,22 @@ include "dbconnect.php";
                       <?php } else{?>
                         <button class="btn btn-success btn activate_btn " data-bs-toggle='modal' data-bs-target='#activate'><i class="fa-sharp fa-solid fa-check d-block"> </i>Activate</button>
                         <?php }?>
-                      <button class="btn btn-warning send_btn" data-bs-toggle='modal' data-bs-target=''><i class="fa-solid fa-paper-plane d-block text-white"></i>Send sms</button>
-                      </div>
+                        <?php
+                        $role = $user['role'];
+                        $userId = $user['user_id'];
+                        if($role == 3){
+                        
+                          $sql9 = "SELECT * FROM `customers` WHERE customers.id = '$userId'";
+                        }else{
+                          
+                          $sql9 = "SELECT * FROM `promoter` WHERE promoter.id = '$userId'";
+                        }
+                         
+                          $contact = $conn->query($sql9)->fetch_assoc()['contact'];
+                        ?>
+                      <button class="btn btn-warning send_btn"
+                      onclick="sendSms(`<?php echo $contact ?>`, `<?php echo $user['username'] ?>`, `<?php echo $user['password']?>`)"  data-bs-toggle='modal' data-bs-target=''><i class="fa-solid fa-paper-plane d-block text-white"></i>Send sms</button>
+                      </div> 
                     </td>
                   </tr>
                 <?php } ?>
@@ -335,6 +348,38 @@ include "dbconnect.php";
 
   <!-- Page JS Code -->
   <script src="assets/js/pages/be_tables_datatables.min.js"></script>
+
+  <script>
+    function sendSms(contact, username, password){
+    
+      var contact = '256' + contact.slice(1);
+     
+      var message = "Dear" + username + "These are your logins\nusername:" + username + "\npassword:" + password + "\nConcert Mix 2023";  
+      var data = 'api_id=api34770800361&api_password=nugsoft@2020&phonenumber=' + contact +'&sms_type=P&sender_id=bulksms&from=nugsoft&encoding=T&textmessage=' +  encodeURIComponent(message);
+      // create a new XMLHttpRequest object
+      
+      var xhr = new XMLHttpRequest();
+      // configure the request
+      xhr.open('GET', 'http://apidocs.speedamobile.com/api/SendSMS?' + data, true);
+
+      // set the response type
+      xhr.responseType = 'json';
+
+      // set up event listeners for the request
+      xhr.onload = function() {
+        // handle the response
+        if (xhr.status === 200) {
+          console.log(xhr.response);
+        } else {
+          console.error('Request failed.  Returned status of ' + xhr.status ) ;
+        }
+      };
+
+      // send the request
+      xhr.send();
+
+    }
+  </script>
 </body>
 
 </html>
