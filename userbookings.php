@@ -32,7 +32,39 @@ include 'dbconnect.php';
        
 
         $sql = "UPDATE `bookings` SET `amount_paid`='$newAmount',`balance`='$balance' WHERE book_id = '$bookId'";
-        $conn->query($sql);
+       $results = $conn->query($sql);
+      $role = $_SESSION['user']['role'];
+      $userId = $_SESSION['user']['user_id'];
+      $username = $_SESSION['user']['username'];
+       if($results){
+        if($role == 3){
+          echo "===========$role============";
+          $sql = "SELECT * FROM `customers` WHERE customers.id = '$userId'";
+        }else{
+          echo "===========$role============";
+          $sql = "SELECT * FROM `promoter` WHERE promoter.id = '$userId'";
+        }
+        echo "===========$sql============";
+         
+          $contact = $conn->query($sql)->fetch_assoc()['contact'];
+          echo "===========contact============";
+          echo "===========$contact============";
+          echo "===========contact============";
+
+          $phone = substr($contact, -9);
+          $reciever= "256".$phone;
+          $message = "Dear $username:\n Your amount of  $amount was successfully received and your new balance is $balance\nconcert Mix for details 0772458553";
+          $data = 'api_id=api34770800361&api_password=nugsoft@2020&phonenumber='.$reciever.'&sms_type=P&sender_id=bulksms&from=nugsoft&encoding=T&textmessage='.rawurlencode($message);
+          $ch = curl_init('http://apidocs.speedamobile.com/api/SendSMS?'.$data);
+          curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+          $response = curl_exec($ch);
+          echo "===================================";
+          echo $response;
+          echo "===================================";
+
+          curl_close($ch);     
+      
+       }
     }
     ?>
     <div id="page-container" class="sidebar-o sidebar-dark enable-page-overlay side-scroll page-header-fixed main-content-narrow">
@@ -92,7 +124,7 @@ include 'dbconnect.php';
                }
 
                 $userId = $_SESSION['user']['id'];
-                $sql = "SELECT * FROM `bookings` JOIN customers ON customers.id = bookings.customer_id JOIN events ON events.event_id = bookings.event_id JOIN package ON package.id = bookings.package_id JOIN promoter ON promoter.id = bookings.organiser_id WHERE bookings.customer_id = '$userId' ORDER BY book_id DESC";
+                $sql = "SELECT * FROM `bookings` JOIN users ON users.id = bookings.customer_id JOIN events ON events.event_id = bookings.event_id JOIN package ON package.id = bookings.package_id JOIN promoter ON promoter.id = bookings.organiser_id WHERE bookings.customer_id = '$userId' ORDER BY book_id DESC";
                 $results = $conn->query($sql);
 
                 while ($user = $results->fetch_assoc()) {
@@ -100,7 +132,7 @@ include 'dbconnect.php';
                 ?>
                   <tr>
                     <td hidden><?php echo $user['id'];?></td>
-                    <td class="text-center"><?php echo $user['customer_name']?></td>
+                    <td class="text-center"><?php echo $user['username']?></td>
                     <td class="text-center">
                     <?php 
                     echo $user['event_name']
