@@ -136,11 +136,11 @@ include "dbconnect.php";
                }
 
                if($_SESSION['user']['role'] == 1){
-                $sql = "SELECT * FROM `bookings` JOIN customers ON customers.id = bookings.customer_id JOIN events ON events.event_id = bookings.event_id JOIN package ON package.id = bookings.package_id JOIN promoter ON promoter.id = bookings.organiser_id";
+                $sql = "SELECT * FROM `bookings` JOIN users ON users.id = bookings.customer_id JOIN events ON events.event_id = bookings.event_id JOIN package ON package.id = bookings.package_id JOIN promoter ON promoter.id = bookings.organiser_id";
 
                }else{
                 $organiserId = $_SESSION['user']['user_id'];
-                $sql = "SELECT * FROM `bookings` JOIN customers ON customers.id = bookings.customer_id JOIN events ON events.event_id = bookings.event_id JOIN package ON package.id = bookings.package_id JOIN promoter ON promoter.id = bookings.organiser_id WHERE bookings.organiser_id = '$organiserId'";
+                $sql = "SELECT * FROM `bookings` JOIN users ON users.id = bookings.customer_id JOIN events ON events.event_id = bookings.event_id JOIN package ON package.id = bookings.package_id JOIN promoter ON promoter.id = bookings.organiser_id WHERE bookings.organiser_id = '$organiserId'";
 
                }
 
@@ -151,7 +151,7 @@ include "dbconnect.php";
                 ?>
                   <tr>
                     <td hidden><?php echo $user['id'];?></td>
-                    <td class="text-center"><?php echo $user['customer_name']?></td>
+                    <td class="text-center"><?php echo $user['username']?></td>
                     <td class="text-center">
                     <?php 
                     echo $user['event_name']
