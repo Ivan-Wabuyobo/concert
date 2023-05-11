@@ -123,6 +123,12 @@
           </a>
         </li>
         <li class="nav-main-item">
+          <a class="nav-main-link " aria-haspopup="true" aria-expanded="false" href="package_collections.php">
+            <i class=" nav-main-link-icon fa-solid fa-book  text-warning"></i>
+            <span class="nav-main-link-name">Package Collections</span>
+          </a>
+        </li>
+        <li class="nav-main-item">
           <a class="nav-main-link " aria-haspopup="true" aria-expanded="false" href="bookings.php">
             <i class=" nav-main-link-icon fa-solid fa-hand-point-up  text-warning"></i>
             <span class="nav-main-link-name">Bookings</span>
